@@ -234,5 +234,65 @@ public class ShapesArray
 		return matches.Distinct();
 	}
 
-	// todo: continue here
+	public void Remove(GameObject item)
+	{
+		shapes[item.GetComponent<Shape>().Row, item.GetComponent<Shape>().Column] = null;
+	}
+
+	public AlteredCandyInfo Collapse(IEnumerable<int> columns)
+	{
+		AlteredCandyInfo collapseInfo = new AlteredCandyInfo();
+
+		// search in every column
+		foreach (var column in columns)
+		{
+			// begin from bottom row
+			for (int row = 0; row < Constants.Rows - 1; row++)
+			{
+				// null item found
+				if (shapes[row, column] == null)
+				{
+					// start searching for the first non-null item
+					for (int row2 = row + 1; row2 < Constants.Rows; row2++)
+					{
+						// let it fall down
+						if (shapes[row2, column] != null)
+						{
+							shapes[row, column] = shapes[row2, column];
+							shapes[row2, column] = null;
+
+							// calculate the biggest distance
+							if (row2 - row > collapseInfo.MaxDistance)
+							{
+								collapseInfo.MaxDistance = row2 - row;
+							}
+
+							// assign new row and column
+							shapes[row, column].GetComponent<Shape>().Row = row;
+							shapes[row, column].GetComponent<Shape>().Column = column;
+
+							collapseInfo.AddCandy(shapes[row, column]);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return collapseInfo;
+	}
+
+	public IEnumerable<ShapeInfo> GetEmptyItemsOnColumn(int column)
+	{
+		List<ShapeInfo> emptyItems = new List<ShapeInfo>();
+		for (int row = 0; row < Constants.Rows; row++)
+		{
+			if (shapes[row, column] == null)
+			{
+				emptyItems.Add(new ShapeInfo() { Row = row, Column = column });
+			}
+		}
+
+		return emptyItems;
+	}
 }

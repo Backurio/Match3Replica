@@ -33,9 +33,9 @@ public class Shape : MonoBehaviour
 			throw new ArgumentException("type");
 		}
 
-		Column = column;
-		Row = row;
 		Type = type;
+		Row = row;
+		Column = column;
 	}
 
 	public static void SwapColumnRow(Shape a, Shape b)

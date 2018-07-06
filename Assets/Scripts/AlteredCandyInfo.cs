@@ -6,7 +6,7 @@ using UnityEngine;
 public class AlteredCandyInfo
 {
 	private List<GameObject> newCandy { get; set; }
-	private int MaxDistance { get; set; }
+	public int MaxDistance { get; set; }
 
 	public AlteredCandyInfo()
 	{
