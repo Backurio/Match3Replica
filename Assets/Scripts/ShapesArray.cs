@@ -261,12 +261,6 @@ public class ShapesArray
 							shapes[row, column] = shapes[row2, column];
 							shapes[row2, column] = null;
 
-							// calculate the biggest distance
-							if (row2 - row > collapseInfo.MaxDistance)
-							{
-								collapseInfo.MaxDistance = row2 - row;
-							}
-
 							// assign new row and column
 							shapes[row, column].GetComponent<Shape>().Row = row;
 							shapes[row, column].GetComponent<Shape>().Column = column;

@@ -83,6 +83,6 @@ public class DebugUtilities : MonoBehaviour
 
 	public static void ShowArray(ShapesArray shapes)
 	{
-		print(GetArrayContents(shapes));
+		Debug.Log(GetArrayContents(shapes));
 	}
 }

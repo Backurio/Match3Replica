@@ -264,6 +264,9 @@ public class ShapesManager : MonoBehaviour
 
 			soundManager.PlayCrinkle();
 
+			// wait some time before the candy is destroyed
+			yield return new WaitForSeconds(Constants.DestroyMatchesDuration);
+
 			foreach (var item in totalMatches)
 			{
 				shapes.Remove(item);
@@ -287,16 +290,11 @@ public class ShapesManager : MonoBehaviour
 			// create new ones
 			var newCandyInfo = CreateNewCandyInSpecificColumns(columns);
 
-			int maxDistance = Mathf.Max(collapsedCandyInfo.MaxDistance, newCandyInfo.MaxDistance);
-
-			//MoveAndAnimate(newCandyInfo.AlteredCandy, newCandyInfo.MaxDistance);
-			//MoveAndAnimate(collapsedCandyInfo.AlteredCandy, collapsedCandyInfo.MaxDistance);
-
-			MoveAndAnimate(newCandyInfo.AlteredCandy, maxDistance);
-			MoveAndAnimate(collapsedCandyInfo.AlteredCandy, maxDistance);
+			MoveAndAnimate(newCandyInfo.AlteredCandy);
+			MoveAndAnimate(collapsedCandyInfo.AlteredCandy);
 
 			// will wait for both of the above animations
-			yield return new WaitForSeconds(Constants.MoveAnimationMinDuration * maxDistance);
+			yield return new WaitForSeconds(Constants.MoveAnimationMinDuration);
 
 			// search if there are matches with the new/collapsed items
 			totalMatches = shapes.GetMatches(collapsedCandyInfo.AlteredCandy).Union(shapes.GetMatches(newCandyInfo.AlteredCandy)).Distinct();
@@ -338,10 +336,6 @@ public class ShapesManager : MonoBehaviour
 				newCandy.GetComponent<Shape>().Assign(go.GetComponent<Shape>().Type, item.Row, item.Column);
 
 				int distance = Constants.Rows - item.Row;
-				if (distance > newCandyInfo.MaxDistance)
-				{
-					newCandyInfo.MaxDistance = distance;
-				}
 
 				shapes[item.Row, item.Column] = newCandy;
 				newCandyInfo.AddCandy(newCandy);
@@ -353,12 +347,12 @@ public class ShapesManager : MonoBehaviour
 		return newCandyInfo;
 	}
 
-	private void MoveAndAnimate(IEnumerable<GameObject> movedGameObjects, int distance)
+	private void MoveAndAnimate(IEnumerable<GameObject> movedGameObjects)
 	{
 		foreach (var item in movedGameObjects)
 		{
-			item.transform.DOMove(BottomRight + new Vector2(item.GetComponent<Shape>().Column * CandySize.x, item.GetComponent<Shape>().Row * CandySize.y),
-								  Constants.MoveAnimationMinDuration * distance);
+			Vector2 newPosition = new Vector2(item.GetComponent<Shape>().Column * CandySize.x, item.GetComponent<Shape>().Row * CandySize.y);
+			item.transform.DOMove(BottomRight + newPosition, Constants.MoveAnimationMinDuration);
 		}
 	}
 
