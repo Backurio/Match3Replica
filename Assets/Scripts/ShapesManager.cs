@@ -412,7 +412,7 @@ public class ShapesManager : MonoBehaviour
 
 	private void ShowScore()
 	{
-		ScoreText.text = "Score: " + score.ToString();
+		ScoreText.text = score.ToString();
 	}
 
 	private void DestroyAllCandy()
