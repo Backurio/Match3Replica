@@ -11,6 +11,7 @@ public class ShapesManager : MonoBehaviour
 	public bool ShowDebugInfo = false;
 
 	public ShapesArray shapes;
+	public Transform shapesContainer;
 
 	private int score;
 
@@ -134,7 +135,8 @@ public class ShapesManager : MonoBehaviour
 	{
 		GameObject go = Instantiate(newCandy,
 									BottomRight + new Vector2(column * CandySize.x, row * CandySize.y),
-									Quaternion.identity) as GameObject;
+									Quaternion.identity,
+									shapesContainer) as GameObject;
 
 		// assign the specific properties
 		go.GetComponent<Shape>().Assign(newCandy.GetComponent<Shape>().Type, row, column);
@@ -310,7 +312,8 @@ public class ShapesManager : MonoBehaviour
 	{
 		GameObject Bonus = Instantiate(GetBonusFromType(hitGoCache.Type),
 									   BottomRight + new Vector2(hitGoCache.Column * CandySize.x, hitGoCache.Row * CandySize.y),
-									   Quaternion.identity) as GameObject;
+									   Quaternion.identity,
+									   shapesContainer) as GameObject;
 		shapes[hitGoCache.Row, hitGoCache.Column] = Bonus;
 		var BonusShape = Bonus.GetComponent<Shape>();
 		// will have the same type as the normal candy
@@ -331,11 +334,12 @@ public class ShapesManager : MonoBehaviour
 			foreach (var item in emptyItems)
 			{
 				var go = GetRandomCandy();
-				GameObject newCandy = Instantiate(go, spawnPositions[column] + new Vector2(0.0f, offset * CandySize.y), Quaternion.identity) as GameObject;
+				GameObject newCandy = Instantiate(go,
+												  spawnPositions[column] + new Vector2(0.0f, offset * CandySize.y),
+												  Quaternion.identity,
+												  shapesContainer) as GameObject;
 
 				newCandy.GetComponent<Shape>().Assign(go.GetComponent<Shape>().Type, item.Row, item.Column);
-
-				int distance = Constants.Rows - item.Row;
 
 				shapes[item.Row, item.Column] = newCandy;
 				newCandyInfo.AddCandy(newCandy);
