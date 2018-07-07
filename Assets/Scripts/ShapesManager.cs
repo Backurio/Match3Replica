@@ -14,11 +14,12 @@ public class ShapesManager : MonoBehaviour
 
 	private int score;
 
-	public readonly Vector2 BottomRight = new Vector2(-2.73f, -4.27f);
+	public readonly Vector2 BottomRight = new Vector2(-2.5f, -1.0f);
 	public readonly Vector2 CandySize = new Vector2(0.7f, 0.7f);
 
 	private GameState state = GameState.None;
 	private GameObject hitGo = null;
+
 	private Vector2[] spawnPositions;
 	public GameObject[] CandyPrefabs;
 	public GameObject[] ExplosionPrefabs;
@@ -38,7 +39,11 @@ public class ShapesManager : MonoBehaviour
 
 	private void Start()
 	{
+		InitializeTypesOnPrefabShapesAndBonuses();
 
+		InitializeCandyAndSpanwPositions();
+
+		StartCheckForPotentialMatches();
 	}
 
 	private void InitializeTypesOnPrefabShapesAndBonuses()
@@ -121,6 +126,8 @@ public class ShapesManager : MonoBehaviour
 				InstantiateAndPlaceNewCandy(row, column, newCandy);
 			}
 		}
+
+		SetupSpawnPosition();
 	}
 
 	private void InstantiateAndPlaceNewCandy(int row, int column, GameObject newCandy)
@@ -186,7 +193,7 @@ public class ShapesManager : MonoBehaviour
 					{
 						state = GameState.Animating;
 						FixSortingLayer(hitGo, hit.collider.gameObject);
-						// todo: code here, use hit.collider.gameObject
+						StartCoroutine(FindMatchesAndCollapse(hit.collider.gameObject));
 					}
 
 				}
@@ -282,6 +289,9 @@ public class ShapesManager : MonoBehaviour
 
 			int maxDistance = Mathf.Max(collapsedCandyInfo.MaxDistance, newCandyInfo.MaxDistance);
 
+			//MoveAndAnimate(newCandyInfo.AlteredCandy, newCandyInfo.MaxDistance);
+			//MoveAndAnimate(collapsedCandyInfo.AlteredCandy, collapsedCandyInfo.MaxDistance);
+
 			MoveAndAnimate(newCandyInfo.AlteredCandy, maxDistance);
 			MoveAndAnimate(collapsedCandyInfo.AlteredCandy, maxDistance);
 
@@ -319,20 +329,24 @@ public class ShapesManager : MonoBehaviour
 		foreach (int column in columnsWithMissingCandy)
 		{
 			var emptyItems = shapes.GetEmptyItemsOnColumn(column);
+			int offset = 0;
 			foreach (var item in emptyItems)
 			{
 				var go = GetRandomCandy();
-				GameObject newCandy = Instantiate(go, spawnPositions[column], Quaternion.identity) as GameObject;
+				GameObject newCandy = Instantiate(go, spawnPositions[column] + new Vector2(0.0f, offset * CandySize.y), Quaternion.identity) as GameObject;
 
 				newCandy.GetComponent<Shape>().Assign(go.GetComponent<Shape>().Type, item.Row, item.Column);
 
-				if (Constants.Rows - item.Row > newCandyInfo.MaxDistance)
+				int distance = Constants.Rows - item.Row;
+				if (distance > newCandyInfo.MaxDistance)
 				{
-					newCandyInfo.MaxDistance = Constants.Rows - item.Row;
+					newCandyInfo.MaxDistance = distance;
 				}
 
 				shapes[item.Row, item.Column] = newCandy;
 				newCandyInfo.AddCandy(newCandy);
+
+				offset++;
 			}
 		}
 
@@ -344,15 +358,16 @@ public class ShapesManager : MonoBehaviour
 		foreach (var item in movedGameObjects)
 		{
 			item.transform.DOMove(BottomRight + new Vector2(item.GetComponent<Shape>().Column * CandySize.x, item.GetComponent<Shape>().Row * CandySize.y),
-								  Constants.MoveAnimationMinDuration + distance);
+								  Constants.MoveAnimationMinDuration * distance);
 		}
 	}
 
 	private void RemoveFromScene(GameObject item)
 	{
-		GameObject explosion = GetRandomExplosion();
-		var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
-		Destroy(newExplosion, Constants.ExplosionDuration);
+		// todo: add explosion effects
+		//GameObject explosion = GetRandomExplosion();
+		//var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
+		//Destroy(newExplosion, Constants.ExplosionDuration);
 		Destroy(item);
 	}
 

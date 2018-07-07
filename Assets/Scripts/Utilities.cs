@@ -15,7 +15,7 @@ public static class Utilities
 				c.a = i;
 				item.GetComponent<SpriteRenderer>().color = c;
 			}
-			yield return new WaitForSeconds(Constants.OpacitAnimationFrameDelay);
+			yield return new WaitForSeconds(Constants.OpacityAnimationFrameDelay);
 		}
 
 		for (float i = 0.3f; i <= 1.0f; i += 0.1f)
@@ -26,7 +26,7 @@ public static class Utilities
 				c.a = i;
 				item.GetComponent<SpriteRenderer>().color = c;
 			}
-			yield return new WaitForSeconds(Constants.OpacitAnimationFrameDelay);
+			yield return new WaitForSeconds(Constants.OpacityAnimationFrameDelay);
 		}
 	}
 
@@ -45,7 +45,7 @@ public static class Utilities
 		{
 			for (int column = 0; column < Constants.Columns; column++)
 			{
-				List<List<GameObject>> foundmatches = new List<List<GameObject>>();
+				List<GameObject>[] foundmatches = new List<GameObject>[6];
 
 				foundmatches[0] = CheckHorizontal1(row, column, shapes);
 				foundmatches[1] = CheckHorizontal2(row, column, shapes);
@@ -53,6 +53,7 @@ public static class Utilities
 				foundmatches[3] = CheckVertical1(row, column, shapes);
 				foundmatches[4] = CheckVertical2(row, column, shapes);
 				foundmatches[5] = CheckVertical3(row, column, shapes);
+
 
 				foreach (var match in foundmatches)
 				{
@@ -67,6 +68,7 @@ public static class Utilities
 				{
 					return matches[UnityEngine.Random.Range(0, matches.Count - 1)];
 				}
+
 
 				// tutorial code below commented out.
 				// todo: check if optimization is really needed.
@@ -136,17 +138,17 @@ public static class Utilities
 	{
 		if (column <= Constants.Columns - 2)
 		{
-			if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row, column - 1].GetComponent<Shape>()))
+			if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row, column + 1].GetComponent<Shape>()))
 			{
 				if (row >= 1)
 				{
-					if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row - 1, column + 1].GetComponent<Shape>()))
+					if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row - 1, column + 2].GetComponent<Shape>()))
 					{
 						return new List<GameObject>()
 						{
 							shapes[row, column],
-							shapes[row, column - 1],
-							shapes[row - 1, column + 1]
+							shapes[row, column + 1],
+							shapes[row - 1, column + 2]
 						};
 						/* example
 						 * * * * *
@@ -159,13 +161,13 @@ public static class Utilities
 
 				if (row <= Constants.Rows - 2)
 				{
-					if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row + 1, column + 1].GetComponent<Shape>()))
+					if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row + 1, column + 2].GetComponent<Shape>()))
 					{
 						return new List<GameObject>()
 						{
 							shapes[row, column],
-							shapes[row, column - 1],
-							shapes[row + 1, column + 1]
+							shapes[row, column + 1],
+							shapes[row + 1, column + 2]
 						};
 						/* example
 						 * * * * *
