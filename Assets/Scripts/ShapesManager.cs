@@ -13,6 +13,9 @@ public class ShapesManager : MonoBehaviour
 	public ShapesArray shapes;
 	public Transform shapesContainer;
 
+	public Button RestartButton;
+	public Button PremadeLevelButton;
+
 	private int score;
 
 	public readonly Vector2 BottomRight = new Vector2(-2.5f, -2.0f);
@@ -158,6 +161,10 @@ public class ShapesManager : MonoBehaviour
 		{
 			DebugText.text = DebugUtilities.GetArrayContents(shapes);
 		}
+
+		bool buttonEnabled = (state == GameState.None);
+		RestartButton.interactable = buttonEnabled;
+		PremadeLevelButton.interactable = buttonEnabled;
 
 		if (state == GameState.None)
 		{

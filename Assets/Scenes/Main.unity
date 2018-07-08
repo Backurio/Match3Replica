@@ -466,6 +466,8 @@ MonoBehaviour:
   ScoreText: {fileID: 1805211829}
   ShowDebugInfo: 0
   shapesContainer: {fileID: 1130954533}
+  RestartButton: {fileID: 1038957702}
+  PremadeLevelButton: {fileID: 271890241}
   CandyPrefabs:
   - {fileID: 1756043322006762, guid: e77d39b6491086042a4e2e31fab65336, type: 2}
   - {fileID: 1297308626012266, guid: 8abf65689ee652c40b9316e03e1cb578, type: 2}
@@ -776,7 +778,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 123
+  m_Text: Debug Text
 --- !u!222 &970071621
 CanvasRenderer:
   m_ObjectHideFlags: 0
