@@ -15,7 +15,7 @@ public class ShapesManager : MonoBehaviour
 
 	private int score;
 
-	public readonly Vector2 BottomRight = new Vector2(-2.5f, -1.0f);
+	public readonly Vector2 BottomRight = new Vector2(-2.5f, -2.0f);
 	public readonly Vector2 CandySize = new Vector2(0.7f, 0.7f);
 
 	private GameState state = GameState.None;
@@ -210,8 +210,8 @@ public class ShapesManager : MonoBehaviour
 
 		if (sp1.sortingOrder >= sp2.sortingOrder)
 		{
-			sp1.sortingOrder = 1;
-			sp2.sortingOrder = 0;
+			sp1.sortingOrder = 11;
+			sp2.sortingOrder = 10;
 		}
 	}
 
