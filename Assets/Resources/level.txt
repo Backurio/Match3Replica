@@ -1,12 +1,11 @@
-blue_B |green|orange_B|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink |blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue|green|orange|pink|blue|green|orange|pink
-blue |green|orange|pink|blue|green|orange|pink
+Gold|Stone|Wood|Iron|Coin|Gold|Iron|Coin
+Gold|Stone|Wood|Iron|Coin|Gold|Iron|Coin
+Stone|Wood|Iron|Coin|Gold|Iron|Coin|Gold
+Wood|Iron|Coin|Gold|Iron|Coin|Gold|Stone
+Iron|Coin|Gold|Iron|Coin|Gold|Stone|Wood
+Coin|Gold|Iron|Coin|Gold|Stone|Wood|Iron
+Gold|Iron|Coin|Gold|Stone|Wood|Iron|Coin
+Iron|Coin|Gold|Stone|Wood|Iron|Coin|Gold
+
+
+

@@ -21,6 +21,7 @@ public class ShapesArray
 			}
 			catch (Exception ex)
 			{
+				Debug.Log(row + " " + column);
 				throw ex;
 			}
 		}
@@ -167,7 +168,7 @@ public class ShapesArray
 		// check right
 		if (shape.Column != Constants.Columns - 1)
 		{
-			for (int column = shape.Column + 1; column <= Constants.Columns - 1; column ++)
+			for (int column = shape.Column + 1; column < Constants.Columns; column ++)
 			{
 				if ((shapes[shape.Row, column] != null) && (shapes[shape.Row, column].GetComponent<Shape>().IsSameType(shape)))
 				{

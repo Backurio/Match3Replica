@@ -63,13 +63,6 @@ public static class Utilities
 					}
 				}
 
-				// if matches >= 2, return a random one
-				if (matches.Count >= 2)
-				{
-					return matches[UnityEngine.Random.Range(0, matches.Count - 1)];
-				}
-
-
 				// tutorial code below commented out.
 				// todo: check if optimization is really needed.
 
@@ -82,7 +75,15 @@ public static class Utilities
 			}
 		}
 
-		return null;
+		// if matches >= 2, return a random one
+		if (matches.Count >= 2)
+		{
+			return matches[UnityEngine.Random.Range(0, matches.Count - 1)];
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	public static List<GameObject> CheckHorizontal1(int row, int column, ShapesArray shapes)
@@ -136,7 +137,7 @@ public static class Utilities
 
 	public static List<GameObject> CheckHorizontal2(int row, int column, ShapesArray shapes)
 	{
-		if (column <= Constants.Columns - 2)
+		if (column <= Constants.Columns - 3)
 		{
 			if (shapes[row, column].GetComponent<Shape>().IsSameType(shapes[row, column + 1].GetComponent<Shape>()))
 			{

@@ -42,9 +42,7 @@ public class ShapesManager : MonoBehaviour
 	{
 		InitializeTypesOnPrefabShapesAndBonuses();
 
-		InitializeCandyAndSpanwPositions();
-
-		StartCheckForPotentialMatches();
+		InitializeCandyAndSpawnPositions();
 	}
 
 	private void InitializeTypesOnPrefabShapesAndBonuses()
@@ -90,7 +88,7 @@ public class ShapesManager : MonoBehaviour
 		SetupSpawnPosition();
 	}
 
-	private void InitializeCandyAndSpanwPositions()
+	public void InitializeCandyAndSpawnPositions()
 	{
 		InitializeVariables();
 
@@ -150,6 +148,8 @@ public class ShapesManager : MonoBehaviour
 		{
 			spawnPositions[column] = BottomRight + new Vector2(column * CandySize.x, Constants.Rows * CandySize.y);
 		}
+
+		StartCheckForPotentialMatches();
 	}
 
 	private void Update()
@@ -404,6 +404,7 @@ public class ShapesManager : MonoBehaviour
 
 	private void InitializeVariables()
 	{
+		StopCheckForPotentialMatches();
 		score = 0;
 		ShowScore();
 	}
@@ -500,7 +501,7 @@ public class ShapesManager : MonoBehaviour
 			{
 				AnimatePotentialMatchesCoroutine = Utilities.AnimatePotentialMatches(potentialMatches);
 				StartCoroutine(AnimatePotentialMatchesCoroutine);
-				yield return new WaitForSeconds(Constants.WaitBeforePotentialMatchesCheck);
+				yield return new WaitForSeconds(Constants.WaitBetweenPotentialMatchesAnimation);
 			}
 		}
 	}
