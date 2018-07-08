@@ -15,11 +15,12 @@ public class ShapesManager : MonoBehaviour
 
 	public Button RestartButton;
 	public Button PremadeLevelButton;
+	public Transform PlayArea;
 
 	private int score;
 
-	public readonly Vector2 BottomRight = new Vector2(-2.5f, -2.0f);
-	public readonly Vector2 CandySize = new Vector2(0.7f, 0.7f);
+	public readonly Vector2 CandySize = Vector2.one * Constants.CandySize;
+	public readonly Vector2 BottomLeft = -Vector2.one * Constants.CandySize * 7.0f / 2.0f;
 
 	private GameState state = GameState.None;
 	private GameObject hitGo = null;
@@ -31,6 +32,7 @@ public class ShapesManager : MonoBehaviour
 
 	private IEnumerator CheckPotentialMatchesCoroutine;
 	private IEnumerator AnimatePotentialMatchesCoroutine;
+	private IEnumerator FindMatchesAndCollapseCoroutine;
 
 	IEnumerable<GameObject> potentialMatches;
 
@@ -43,17 +45,34 @@ public class ShapesManager : MonoBehaviour
 
 	private void Start()
 	{
-		InitializeTypesOnPrefabShapesAndBonuses();
+		InitializePlayArea();
+		InitializePrefabs();
 
 		InitializeCandyAndSpawnPositions();
 	}
 
-	private void InitializeTypesOnPrefabShapesAndBonuses()
+	private void InitializePlayArea()
 	{
+		Vector3 newScale = PlayArea.localScale;
+		newScale.x = Constants.Columns * Constants.CandySize + Constants.CandySize * 0.1f;
+		newScale.y = Constants.Rows * Constants.CandySize + Constants.CandySize * 0.1f;
+		PlayArea.localScale = newScale;
+
+		Vector3 newPosition = PlayArea.position;
+		newPosition.y = BottomLeft.y - BottomLeft.x;
+		PlayArea.position = newPosition;
+
+	}
+
+	private void InitializePrefabs()
+	{
+		Vector3 newScale = Vector3.one * Constants.CandySize / 0.7f;
+
 		// just assign the name of the prefab
 		foreach (var item in CandyPrefabs)
 		{
 			item.GetComponent<Shape>().Type = item.name;
+			item.transform.localScale = newScale;
 		}
 
 		// assign the name of the respective "normal" candy as the type of the bonus
@@ -61,6 +80,7 @@ public class ShapesManager : MonoBehaviour
 		{
 			// todo: understand this line o.O
 			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.transform.localScale = newScale;
 		}
 	}
 
@@ -135,7 +155,7 @@ public class ShapesManager : MonoBehaviour
 	private void InstantiateAndPlaceNewCandy(int row, int column, GameObject newCandy)
 	{
 		GameObject go = Instantiate(newCandy,
-									BottomRight + new Vector2(column * CandySize.x, row * CandySize.y),
+									BottomLeft + new Vector2(column * CandySize.x, row * CandySize.y),
 									Quaternion.identity,
 									shapesContainer) as GameObject;
 
@@ -149,7 +169,7 @@ public class ShapesManager : MonoBehaviour
 		// create the spawn position for the new shapes (will pop from the ceiling)
 		for (int column = 0; column < Constants.Columns; column++)
 		{
-			spawnPositions[column] = BottomRight + new Vector2(column * CandySize.x, Constants.Rows * CandySize.y);
+			spawnPositions[column] = BottomLeft + new Vector2(column * CandySize.x, Constants.Rows * CandySize.y);
 		}
 
 		StartCheckForPotentialMatches();
@@ -161,10 +181,6 @@ public class ShapesManager : MonoBehaviour
 		{
 			DebugText.text = DebugUtilities.GetArrayContents(shapes);
 		}
-
-		bool buttonEnabled = (state == GameState.None);
-		RestartButton.interactable = buttonEnabled;
-		PremadeLevelButton.interactable = buttonEnabled;
 
 		if (state == GameState.None)
 		{
@@ -202,7 +218,8 @@ public class ShapesManager : MonoBehaviour
 					{
 						state = GameState.Animating;
 						FixSortingLayer(hitGo, hit.collider.gameObject);
-						StartCoroutine(FindMatchesAndCollapse(hit.collider.gameObject));
+						FindMatchesAndCollapseCoroutine = FindMatchesAndCollapse(hit.collider.gameObject);
+						StartCoroutine(FindMatchesAndCollapseCoroutine);
 					}
 
 				}
@@ -318,7 +335,7 @@ public class ShapesManager : MonoBehaviour
 	private void CreateBonus(Shape hitGoCache)
 	{
 		GameObject Bonus = Instantiate(GetBonusFromType(hitGoCache.Type),
-									   BottomRight + new Vector2(hitGoCache.Column * CandySize.x, hitGoCache.Row * CandySize.y),
+									   BottomLeft + new Vector2(hitGoCache.Column * CandySize.x, hitGoCache.Row * CandySize.y),
 									   Quaternion.identity,
 									   shapesContainer) as GameObject;
 		shapes[hitGoCache.Row, hitGoCache.Column] = Bonus;
@@ -363,7 +380,7 @@ public class ShapesManager : MonoBehaviour
 		foreach (var item in movedGameObjects)
 		{
 			Vector2 newPosition = new Vector2(item.GetComponent<Shape>().Column * CandySize.x, item.GetComponent<Shape>().Row * CandySize.y);
-			item.transform.DOMove(BottomRight + newPosition, Constants.MoveAnimationMinDuration);
+			item.transform.DOMove(BottomLeft + newPosition, Constants.MoveAnimationMinDuration);
 		}
 	}
 
@@ -411,9 +428,15 @@ public class ShapesManager : MonoBehaviour
 
 	private void InitializeVariables()
 	{
+		// stop all coroutines. needed for Restart and Premade Level button
+		if (FindMatchesAndCollapseCoroutine != null)
+		{
+			StopCoroutine(FindMatchesAndCollapseCoroutine);
+		}
 		StopCheckForPotentialMatches();
 		score = 0;
 		ShowScore();
+		state = GameState.None;
 	}
 
 	private void IncreaseScore(int amount)

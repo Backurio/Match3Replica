@@ -2,6 +2,7 @@
 {
 	public static readonly int Rows = 8;
 	public static readonly int Columns = 8;
+	public static readonly float CandySize = 0.6f;
 	public static readonly float AnimationDuration = 0.2f;
 
 	public static readonly float DestroyMatchesDuration = 0.2f;
