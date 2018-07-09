@@ -21,6 +21,7 @@ public class ShapesManager : MonoBehaviour
 
 	public readonly Vector2 CandySize = Vector2.one * Constants.CandySize;
 	public readonly Vector2 BottomLeft = -Vector2.one * Constants.CandySize * 7.0f / 2.0f;
+	public readonly Vector3 CandyScale = Vector3.one * Constants.CandySize / 0.7f;
 
 	private GameState state = GameState.None;
 	private GameObject hitGo = null;
@@ -66,13 +67,11 @@ public class ShapesManager : MonoBehaviour
 
 	private void InitializePrefabs()
 	{
-		Vector3 newScale = Vector3.one * Constants.CandySize / 0.7f;
-
 		// just assign the name of the prefab
 		foreach (var item in CandyPrefabs)
 		{
 			item.GetComponent<Shape>().Type = item.name;
-			item.transform.localScale = newScale;
+			item.transform.localScale = CandyScale;
 		}
 
 		// assign the name of the respective "normal" candy as the type of the bonus
@@ -80,7 +79,7 @@ public class ShapesManager : MonoBehaviour
 		{
 			// todo: understand this line o.O
 			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
-			item.transform.localScale = newScale;
+			item.transform.localScale = CandyScale;
 		}
 	}
 
@@ -206,9 +205,6 @@ public class ShapesManager : MonoBehaviour
 				// if hit occured
 				if ((hit.collider != null) && (hitGo != hit.collider.gameObject))
 				{
-					// user did a hit, no need to show the hints
-					StopCheckForPotentialMatches();
-
 					// if the two shapes are diagonally aligned (different row and column), just return
 					if (!Utilities.AreVerticalOrHorizontalNeighbors(hitGo.GetComponent<Shape>(), hit.collider.gameObject.GetComponent<Shape>()))
 					{
@@ -241,12 +237,14 @@ public class ShapesManager : MonoBehaviour
 
 	private IEnumerator FindMatchesAndCollapse(GameObject hitGo2)
 	{
+		bool matchPerformed = false;
+
 		shapes.Swap(hitGo, hitGo2);
 
 		// move the swapped ones
-		hitGo.transform.DOMove(hitGo2.transform.position, Constants.AnimationDuration);
-		hitGo2.transform.DOMove(hitGo.transform.position, Constants.AnimationDuration);
-		yield return new WaitForSeconds(Constants.AnimationDuration);
+		hitGo.transform.DOMove(hitGo2.transform.position, Constants.SwapAnimationDuration);
+		hitGo2.transform.DOMove(hitGo.transform.position, Constants.SwapAnimationDuration);
+		yield return new WaitForSeconds(Constants.SwapAnimationDuration);
 
 		// get the matches via the helper methods
 		var hitGoMatchesInfo = shapes.GetMatches(hitGo);
@@ -257,11 +255,17 @@ public class ShapesManager : MonoBehaviour
 		// if user's swap didn't create at least a 3-match, undo their swap
 		if (totalMatches.Count() < Constants.MinimumMatches)
 		{
-			hitGo.transform.DOMove(hitGo2.transform.position, Constants.AnimationDuration);
-			hitGo2.transform.DOMove(hitGo.transform.position, Constants.AnimationDuration);
-			yield return new WaitForSeconds(Constants.AnimationDuration);
+			hitGo.transform.DOMove(hitGo2.transform.position, Constants.SwapAnimationDuration);
+			hitGo2.transform.DOMove(hitGo.transform.position, Constants.SwapAnimationDuration);
+			yield return new WaitForSeconds(Constants.SwapAnimationDuration);
 
 			shapes.UndoSwap();
+		}
+		else
+		{
+			matchPerformed = true;
+			// user performed a match, no need to show the hints anymore
+			StopCheckForPotentialMatches();
 		}
 
 		// if more than 3 matches and no bonus is contained in the line, we will award a new bonus
@@ -329,7 +333,11 @@ public class ShapesManager : MonoBehaviour
 		}
 
 		state = GameState.None;
-		StartCheckForPotentialMatches();
+
+		if (matchPerformed == true)
+		{
+			StartCheckForPotentialMatches();
+		}
 	}
 
 	private void CreateBonus(Shape hitGoCache)
@@ -514,9 +522,7 @@ public class ShapesManager : MonoBehaviour
 					break;
 				}
 
-				Color c = item.GetComponent<SpriteRenderer>().color;
-				c.a = 1.0f;
-				item.GetComponent<SpriteRenderer>().color = c;
+				item.transform.localScale = CandyScale;
 			}
 		}
 	}
@@ -529,8 +535,12 @@ public class ShapesManager : MonoBehaviour
 		{
 			while (true)
 			{
-				AnimatePotentialMatchesCoroutine = Utilities.AnimatePotentialMatches(potentialMatches);
-				StartCoroutine(AnimatePotentialMatchesCoroutine);
+				for (int i = 0; i < 2; i++)
+				{
+					AnimatePotentialMatchesCoroutine = Utilities.AnimatePotentialMatches(potentialMatches);
+					StartCoroutine(AnimatePotentialMatchesCoroutine);
+					yield return new WaitForSeconds(2 * Constants.ScaleAnimationDuration);
+				}
 				yield return new WaitForSeconds(Constants.WaitBetweenPotentialMatchesAnimation);
 			}
 		}

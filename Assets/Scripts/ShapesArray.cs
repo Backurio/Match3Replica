@@ -31,6 +31,13 @@ public class ShapesArray
 		}
 	}
 
+	public bool IsSameType(int row, int column, int rowOffset, int columnOffset)
+	{
+		string type1 = shapes[row, column].GetComponent<Shape>().Type;
+		string type2 = shapes[row + rowOffset, column + columnOffset].GetComponent<Shape>().Type;
+		return string.Compare(type1, type2) == 0;
+	}
+
 	public void Swap(GameObject g1, GameObject g2)
 	{
 		// hold a backup in case no match is produced

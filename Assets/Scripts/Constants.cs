@@ -3,7 +3,7 @@
 	public static readonly int Rows = 8;
 	public static readonly int Columns = 8;
 	public static readonly float CandySize = 0.6f;
-	public static readonly float AnimationDuration = 0.2f;
+	public static readonly float SwapAnimationDuration = 0.2f;
 
 	public static readonly float DestroyMatchesDuration = 0.2f;
 	public static readonly float MoveAnimationMinDuration = 0.5f;
@@ -12,7 +12,7 @@
 
 	public static readonly float WaitBeforePotentialMatchesCheck = 2.0f;
 	public static readonly float WaitBetweenPotentialMatchesAnimation = 1.0f;
-	public static readonly float OpacityAnimationFrameDelay = 0.05f;
+	public static readonly float ScaleAnimationDuration = 0.2f;
 
 	public static readonly int MinimumMatches = 3;
 	public static readonly int MinimumMatchesForBonus = 4;
