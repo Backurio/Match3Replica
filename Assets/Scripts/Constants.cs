@@ -10,7 +10,7 @@
 	public static readonly float DestroyMatchesDuration = 0.2f;
 	public static readonly float MoveAnimationMinDuration = 0.5f;
 
-	public static readonly float ExplosionDuration = 0.5f;
+	public static readonly float ExplosionDuration = 0.4f;
 
 	public static readonly float WaitBeforePotentialMatchesCheck = 2.0f;
 	public static readonly float WaitBetweenPotentialMatchesAnimation = 1.0f;

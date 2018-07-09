@@ -551,11 +551,7 @@ MonoBehaviour:
   - {fileID: 1817730760649408, guid: 69a7060288330ee4e90d6aa70d80b8ac, type: 2}
   - {fileID: 1922903201488580, guid: 20b1637dd52e95443988f6dec13d1609, type: 2}
   ExplosionPrefabs:
-  - {fileID: 1756043322006762, guid: e77d39b6491086042a4e2e31fab65336, type: 2}
-  - {fileID: 1297308626012266, guid: 8abf65689ee652c40b9316e03e1cb578, type: 2}
-  - {fileID: 1533693679546852, guid: 0dc5268515d183944ad9f07e9298cde7, type: 2}
-  - {fileID: 1817730760649408, guid: 69a7060288330ee4e90d6aa70d80b8ac, type: 2}
-  - {fileID: 1922903201488580, guid: 20b1637dd52e95443988f6dec13d1609, type: 2}
+  - {fileID: 1943989212539218, guid: 6116eb0d4dbf36142911bc4deabb21d0, type: 2}
   BonusPrefabs:
   - {fileID: 1656131690740054, guid: 34a7dc21ef908694dbfd33096db7501a, type: 2}
   - {fileID: 1061274053689338, guid: dff1e64ad514c4c4fbaec3ad39fba365, type: 2}

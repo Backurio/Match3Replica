@@ -375,9 +375,6 @@ public class ShapesManager : MonoBehaviour
 
 			soundManager.PlayCrinkle();
 
-			// wait some time before the candy is destroyed
-			yield return new WaitForSeconds(Constants.DestroyMatchesDuration);
-
 			foreach (var item in totalMatches)
 			{
 				shapes.Remove(item);
@@ -400,6 +397,9 @@ public class ShapesManager : MonoBehaviour
 			var collapsedCandyInfo = shapes.Collapse(columns);
 			// create new ones
 			var newCandyInfo = CreateNewCandyInSpecificColumns(columns);
+
+			// wait until explosion animation has finished
+			yield return new WaitForSeconds(Constants.ExplosionDuration);
 
 			MoveAndAnimate(newCandyInfo.AlteredCandy);
 			MoveAndAnimate(collapsedCandyInfo.AlteredCandy);
@@ -476,9 +476,9 @@ public class ShapesManager : MonoBehaviour
 	private void RemoveFromScene(GameObject item)
 	{
 		// todo: add explosion effects
-		//GameObject explosion = GetRandomExplosion();
-		//var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
-		//Destroy(newExplosion, Constants.ExplosionDuration);
+		GameObject explosion = GetRandomExplosion();
+		var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
+		Destroy(newExplosion, Constants.ExplosionDuration);
 		Destroy(item);
 	}
 
@@ -632,7 +632,7 @@ public class ShapesManager : MonoBehaviour
 		}
 		else
 		{
-			// no potential match found
+			// no potential match found, shuffle the objects
 			StartCoroutine("Shuffle");
 		}
 	}
