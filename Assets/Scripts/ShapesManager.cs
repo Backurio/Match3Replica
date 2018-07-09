@@ -544,5 +544,10 @@ public class ShapesManager : MonoBehaviour
 				yield return new WaitForSeconds(Constants.WaitBetweenPotentialMatchesAnimation);
 			}
 		}
+		else
+		{
+			// no potential match found
+			// todo: scramble objects
+		}
 	}
 }

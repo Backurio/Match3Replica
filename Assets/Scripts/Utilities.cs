@@ -31,13 +31,14 @@ public static class Utilities
 
 	public static IEnumerable<GameObject> GetPotentialMatches(ShapesArray shapes)
 	{
-		// list that will contain all matches we find
-		List<List<GameObject>> match3 = new List<List<GameObject>>();
-		List<List<GameObject>> match4 = new List<List<GameObject>>();
-		List<List<GameObject>> match5 = new List<List<GameObject>>();
-		List<List<GameObject>> match6 = new List<List<GameObject>>();
-		List<List<GameObject>> match7 = new List<List<GameObject>>();
-		List<List<GameObject>> match8 = new List<List<GameObject>>();
+		// array of list that will contain all matches we find, sorted by amount of involved objects
+		// index 0 = 8 objects, index 5 = 3 objects
+		List<List<GameObject>>[] matches = new List<List<GameObject>>[6];
+
+		for (int i = 0; i < matches.Length; i++)
+		{
+			matches[i] = new List<List<GameObject>>();
+		}
 
 		for (int row = 0; row < Constants.Rows; row++)
 		{
@@ -54,78 +55,31 @@ public static class Utilities
 				foundmatches[6] = CheckVertical3(row, column, shapes);
 				foundmatches[7] = CheckVertical4(row, column, shapes);
 
-
 				foreach (var match in foundmatches)
 				{
 					match.Add(shapes[row, column]);
 
-					if (match.Count == 3)
+					for (int i = 0; i < matches.Length; i++)
 					{
-						match3.Add(match);
-					}
-					else if (match.Count == 4)
-					{
-						match4.Add(match);
-					}
-					else if (match.Count == 5)
-					{
-						match5.Add(match);
-					}
-					else if (match.Count == 6)
-					{
-						match6.Add(match);
-					}
-					else if (match.Count == 7)
-					{
-						match7.Add(match);
-					}
-					else if (match.Count == 8)
-					{
-						match8.Add(match);
+						if ((match.Count > 2) && (match.Count == 8 - i))
+						{
+							matches[i].Add(match);
+						}
 					}
 				}
-
-				// tutorial code below commented out.
-				// todo: check if optimization is really needed.
-
-				//// if matches >= 3 OR we are in the middle of the calcuation loop and we have less than 3 matches -> return a random one
-				//if ((matches.Count >= 3) ||
-				//	((row >= Constants.Rows / 2) && (matches.Count > 0) && (matches.Count <= 2)))
-				//{
-				//	return matches[UnityEngine.Random.Range(0, matches.Count - 1)];
-				//}
 			}
 		}
 
 		// return random found match
-		if (match8.Count > 0)
+		for (int i = 0; i < matches.Length; i++)
 		{
-			return match8[UnityEngine.Random.Range(0, match8.Count - 1)];
+			if (matches[i].Count > 0)
+			{
+				return matches[i][UnityEngine.Random.Range(0, matches[i].Count - 1)];
+			}
 		}
-		else if (match7.Count > 0)
-		{
-			return match7[UnityEngine.Random.Range(0, match7.Count - 1)];
-		}
-		else if (match6.Count > 0)
-		{
-			return match6[UnityEngine.Random.Range(0, match6.Count - 1)];
-		}
-		else if (match5.Count > 0)
-		{
-			return match5[UnityEngine.Random.Range(0, match5.Count - 1)];
-		}
-		else if (match4.Count > 0)
-		{
-			return match4[UnityEngine.Random.Range(0, match4.Count - 1)];
-		}
-		else if (match3.Count > 0)
-		{
-			return match3[UnityEngine.Random.Range(0, match3.Count - 1)];
-		}
-		else
-		{
-			return null;
-		}
+
+		return null;
 	}
 
 	public static List<GameObject> CheckHorizontal1(int row, int column, ShapesArray shapes)
