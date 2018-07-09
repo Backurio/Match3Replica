@@ -8,6 +8,7 @@ using DG.Tweening;
 public class ShapesManager : MonoBehaviour
 {
 	public Text DebugText, ScoreText;
+	public GameObject ShuffleText;
 	public bool ShowDebugInfo = false;
 
 	public ShapesArray shapes;
@@ -42,6 +43,7 @@ public class ShapesManager : MonoBehaviour
 	private void Awake()
 	{
 		DebugText.enabled = ShowDebugInfo;
+		ShuffleText.SetActive(false);
 	}
 
 	private void Start()
@@ -89,14 +91,6 @@ public class ShapesManager : MonoBehaviour
 
 		var premadeLevel = DebugUtilities.FillShapesArrayFromResourceData();
 
-		if (shapes != null)
-		{
-			DestroyAllCandy();
-		}
-
-		shapes = new ShapesArray();
-		spawnPositions = new Vector2[Constants.Columns];
-
 		for (int row = 0; row < Constants.Rows; row++)
 		{
 			for (int column = 0; column < Constants.Columns; column++)
@@ -113,14 +107,6 @@ public class ShapesManager : MonoBehaviour
 	public void InitializeCandyAndSpawnPositions()
 	{
 		InitializeVariables();
-
-		if (shapes != null)
-		{
-			DestroyAllCandy();
-		}
-
-		shapes = new ShapesArray();
-		spawnPositions = new Vector2[Constants.Columns];
 
 		for (int row = 0; row < Constants.Rows; row++)
 		{
@@ -151,6 +137,100 @@ public class ShapesManager : MonoBehaviour
 		SetupSpawnPosition();
 	}
 
+	public void ShuffleCandies()
+	{
+		if (shapes == null)
+		{
+			return;
+		}
+
+		StopAllCoroutines();
+
+		List<GameObject> fixedCandyPool = new List<GameObject>();
+
+		// copy shapesarray to a list of GameObjects
+		for (int row = 0; row < Constants.Rows; row++)
+		{
+			for (int column = 0; column < Constants.Columns; column++)
+			{
+				fixedCandyPool.Add(shapes[row, column]);
+			}
+		}
+
+		bool noArrangementFound = true;
+
+		// run this loop as long as no valid arrangement is found
+		while (noArrangementFound == true)
+		{
+			// copy list of GameObjects to a new list to preserve the original one
+			List<GameObject> variableCandyPool = new List<GameObject>(fixedCandyPool);
+			// destroy all shown candies
+			DestroyAllCandy();
+			shapes = new ShapesArray();
+			GameObject newCandy;
+
+			noArrangementFound = false;
+			// loop through all positions and set one candy from the list
+			// if no valid candy is found for a position within 10 tries, both loops are stopped and restarted
+			for (int row = 0; row < Constants.Rows; row++)
+			{
+				for (int column = 0; column < Constants.Columns; column++)
+				{
+					newCandy = variableCandyPool[Random.Range(0, variableCandyPool.Count)];
+
+					int tryCounter = 0;
+					// check if two previous horizontal candies are of the same type. if true -> take a new candy
+					while ((column >= 2) &&
+						   (shapes[row, column - 1].GetComponent<Shape>().IsSameType(newCandy.GetComponent<Shape>())) &&
+						   (shapes[row, column - 1].GetComponent<Shape>().IsSameType(newCandy.GetComponent<Shape>())))
+					{
+						newCandy = variableCandyPool[Random.Range(0, variableCandyPool.Count)];
+						tryCounter++;
+						if (tryCounter >= 10)
+						{
+							noArrangementFound = true;
+							break;
+						}
+					}
+
+					tryCounter = 0;
+					// check if two previous vertical candies are of the same type. if true -> take a new candy
+					while ((row >= 2) &&
+						   (shapes[row - 1, column].GetComponent<Shape>().IsSameType(newCandy.GetComponent<Shape>())) &&
+						   (shapes[row - 2, column].GetComponent<Shape>().IsSameType(newCandy.GetComponent<Shape>())))
+					{
+						newCandy = variableCandyPool[Random.Range(0, variableCandyPool.Count)];
+						tryCounter++;
+						if (tryCounter >= 10)
+						{
+							noArrangementFound = true;
+							break;
+						}
+					}
+
+					if (noArrangementFound == true)
+					{
+						break;
+					}
+
+					// place the new candy
+					InstantiateAndPlaceNewCandy(row, column, newCandy);
+					// remove the new candy from the list
+					variableCandyPool.Remove(newCandy);
+				}
+
+				if (noArrangementFound == true)
+				{
+					break;
+				}
+			}
+		}
+
+		state = GameState.None;
+
+		SetupSpawnPosition();
+	}
+
 	private void InstantiateAndPlaceNewCandy(int row, int column, GameObject newCandy)
 	{
 		GameObject go = Instantiate(newCandy,
@@ -160,6 +240,7 @@ public class ShapesManager : MonoBehaviour
 
 		// assign the specific properties
 		go.GetComponent<Shape>().Assign(newCandy.GetComponent<Shape>().Type, row, column);
+		go.GetComponent<BoxCollider2D>().enabled = true;
 		shapes[row, column] = go;
 	}
 
@@ -437,14 +518,19 @@ public class ShapesManager : MonoBehaviour
 	private void InitializeVariables()
 	{
 		// stop all coroutines. needed for Restart and Premade Level button
-		if (FindMatchesAndCollapseCoroutine != null)
-		{
-			StopCoroutine(FindMatchesAndCollapseCoroutine);
-		}
-		StopCheckForPotentialMatches();
+		StopAllCoroutines();
+
 		score = 0;
 		ShowScore();
 		state = GameState.None;
+
+		if (shapes != null)
+		{
+			DestroyAllCandy();
+		}
+
+		shapes = new ShapesArray();
+		spawnPositions = new Vector2[Constants.Columns];
 	}
 
 	private void IncreaseScore(int amount)
@@ -547,7 +633,15 @@ public class ShapesManager : MonoBehaviour
 		else
 		{
 			// no potential match found
-			// todo: scramble objects
+			StartCoroutine("Shuffle");
 		}
+	}
+
+	private IEnumerator Shuffle()
+	{
+		ShuffleText.SetActive(true);
+		yield return new WaitForSeconds(Constants.WaitBeforeShuffling);
+		ShuffleCandies();
+		ShuffleText.SetActive(false);
 	}
 }

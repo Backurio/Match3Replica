@@ -1,7 +1,7 @@
-Gold|Stone|Wood|Iron|Coin|Gold|Iron|Coin
+Coin|Gold|Stone|Wood|Iron|Coin|Gold|Iron
 Gold|Stone|Wood|Iron|Coin|Gold|Iron|Coin
 Stone|Wood|Iron|Coin|Gold|Iron|Coin|Gold
-Wood|Iron|Wood|Gold|Iron|Coin|Gold|Stone
+Wood|Iron|Coin|Gold|Iron|Coin|Gold|Stone
 Iron|Coin|Gold|Iron|Coin|Gold|Stone|Wood
 Coin|Gold|Iron|Coin|Gold|Stone|Wood|Iron
 Gold|Iron|Coin|Gold|Stone|Wood|Iron|Coin

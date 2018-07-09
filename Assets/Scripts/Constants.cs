@@ -3,7 +3,9 @@
 	public static readonly int Rows = 8;
 	public static readonly int Columns = 8;
 	public static readonly float CandySize = 0.6f;
+
 	public static readonly float SwapAnimationDuration = 0.2f;
+	public static readonly float WaitBeforeShuffling = 2.0f;
 
 	public static readonly float DestroyMatchesDuration = 0.2f;
 	public static readonly float MoveAnimationMinDuration = 0.5f;
