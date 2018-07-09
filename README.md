@@ -6,5 +6,5 @@ After implementing the basic functionality of the tutorial, improvements and ext
 
 All sprites used in this game will be self made.
 
-The work on this project will be stopped after 2 weeks and a new project will be started.
+The work on this project will be stopped after 2 weeks (18.07.2018) and a new project will be started.
 This is done to get familiar with different game styles and to learn new stuff continuously.
