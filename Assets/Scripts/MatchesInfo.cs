@@ -9,6 +9,26 @@ public class MatchesInfo
 	private List<GameObject> matchedCandies;
 
 	public BonusType BonusesContained { get; set; }
+	public int HorizontalMatches { get; set; }
+	public int VerticalMatches { get; set; }
+	public int Matches
+	{
+		get
+		{
+			if (HorizontalMatches == 0)
+			{
+				return VerticalMatches;
+			}
+			else if (VerticalMatches == 0)
+			{
+				return HorizontalMatches;
+			}
+			else
+			{
+				return HorizontalMatches + VerticalMatches - 1;
+			}
+		}
+	}
 
 	public MatchesInfo()
 	{

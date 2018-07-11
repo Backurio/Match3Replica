@@ -8,7 +8,11 @@
 public enum BonusType
 {
 	None,
-	DestroyWholeRowColumn
+	DestroyWholeRowColumn,
+	Horizontal,
+	Vertical,
+	Bomb,
+	Ultimate
 }
 
 public static class BonusTypeUtilities

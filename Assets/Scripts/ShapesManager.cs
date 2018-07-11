@@ -31,6 +31,10 @@ public class ShapesManager : MonoBehaviour
 	public GameObject[] CandyPrefabs;
 	public GameObject[] ExplosionPrefabs;
 	public GameObject[] BonusPrefabs;
+	public GameObject[] HorizontalPrefabs;
+	public GameObject[] VerticalPrefabs;
+	public GameObject[] BombPrefabs;
+	public GameObject Ultimate;
 
 	private IEnumerator CheckPotentialMatchesCoroutine;
 	private IEnumerator AnimatePotentialMatchesCoroutine;
@@ -78,6 +82,30 @@ public class ShapesManager : MonoBehaviour
 
 		// assign the name of the respective "normal" candy as the type of the bonus
 		foreach (var item in BonusPrefabs)
+		{
+			// todo: understand this line o.O
+			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.transform.localScale = CandyScale;
+		}
+
+		// assign the name of the respective "normal" candy as the type of the bonus
+		foreach (var item in BombPrefabs)
+		{
+			// todo: understand this line o.O
+			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.transform.localScale = CandyScale;
+		}
+
+		// assign the name of the respective "normal" candy as the type of the bonus
+		foreach (var item in HorizontalPrefabs)
+		{
+			// todo: understand this line o.O
+			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.transform.localScale = CandyScale;
+		}
+
+		// assign the name of the respective "normal" candy as the type of the bonus
+		foreach (var item in VerticalPrefabs)
 		{
 			// todo: understand this line o.O
 			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
@@ -344,23 +372,15 @@ public class ShapesManager : MonoBehaviour
 		}
 		else
 		{
-			matchPerformed = true;
 			// user performed a match, no need to show the hints anymore
+			matchPerformed = true;
 			StopCheckForPotentialMatches();
 		}
 
-		// if more than 3 matches and no bonus is contained in the line, we will award a new bonus
-		bool addBonus = ((totalMatches.Count() >= Constants.MinimumMatchesForBonus) &&
-						 (!BonusTypeUtilities.ContainsDestroyWholeRowColumn(hitGoMatchesInfo.BonusesContained)) &&
-						 (!BonusTypeUtilities.ContainsDestroyWholeRowColumn(hitGo2MatchesInfo.BonusesContained)));
+		bool hitGoBonus = (hitGoMatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
+		bool hitGo2Bonus = (hitGo2MatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
 
-		Shape hitGoCache = null;
-		if (addBonus == true)
-		{
-			// get the game object that was of the same type
-			var sameTypeGo = hitGoMatchesInfo.MatchedCandy.Count() > 0 ? hitGo : hitGo2;
-			hitGoCache = sameTypeGo.GetComponent<Shape>();
-		}
+		// todo: add create bonus for hitGo2
 
 		int timesRun = 1;
 		while (totalMatches.Count() >= Constants.MinimumMatches)
@@ -381,13 +401,17 @@ public class ShapesManager : MonoBehaviour
 				RemoveFromScene(item);
 			}
 
-			// check and instantiate bonus if needed
-			if (addBonus == true)
+			if (hitGoBonus == true)
 			{
-				CreateBonus(hitGoCache);
+				CreateBonus(hitGo, hitGoMatchesInfo);
 			}
+			hitGoBonus = false;
 
-			addBonus = false;
+			if (hitGo2Bonus == true)
+			{
+				CreateBonus(hitGo2, hitGo2MatchesInfo);
+			}
+			hitGo2Bonus = false;
 
 			// get the columns that we had a collapse
 			var columns = totalMatches.Select(go => go.GetComponent<Shape>().Column).Distinct();
@@ -421,9 +445,32 @@ public class ShapesManager : MonoBehaviour
 		}
 	}
 
-	private void CreateBonus(Shape hitGoCache)
+	private void CreateBonus(GameObject go, MatchesInfo matchesInfo)
 	{
-		GameObject Bonus = Instantiate(GetBonusFromType(hitGoCache.Type),
+		Shape hitGoCache = go.GetComponent<Shape>();
+		BonusType bonusType = BonusType.None;
+
+		if ((matchesInfo.HorizontalMatches >= Constants.MinimumMatchesForUltimate) ||
+			(matchesInfo.VerticalMatches >= Constants.MinimumMatchesForUltimate))
+		{
+			bonusType = BonusType.Ultimate;
+		}
+		else if ((matchesInfo.HorizontalMatches == Constants.MinimumMatchesForBonus) &&
+				 (matchesInfo.HorizontalMatches > matchesInfo.VerticalMatches))
+		{
+			bonusType = BonusType.Vertical;
+		}
+		else if ((matchesInfo.VerticalMatches == Constants.MinimumMatchesForBonus) &&
+			     (matchesInfo.VerticalMatches > matchesInfo.HorizontalMatches))
+		{
+			bonusType = BonusType.Horizontal;
+		}
+		else
+		{
+			bonusType = BonusType.Bomb;
+		}
+
+		GameObject Bonus = Instantiate(GetBonusFromType(hitGoCache.Type, bonusType),
 									   BottomLeft + new Vector2(hitGoCache.Column * CandySize.x, hitGoCache.Row * CandySize.y),
 									   Quaternion.identity,
 									   shapesContainer) as GameObject;
@@ -432,7 +479,7 @@ public class ShapesManager : MonoBehaviour
 		// will have the same type as the normal candy
 		BonusShape.Assign(hitGoCache.Type, hitGoCache.Row, hitGoCache.Column);
 		// add the proper bonus type
-		BonusShape.Bonus |= BonusType.DestroyWholeRowColumn;
+		BonusShape.Bonus = bonusType;
 	}
 
 	private AlteredCandyInfo CreateNewCandyInSpecificColumns(IEnumerable<int> columnsWithMissingCandy)
@@ -560,16 +607,37 @@ public class ShapesManager : MonoBehaviour
 		return ExplosionPrefabs[Random.Range(0, ExplosionPrefabs.Length)];
 	}
 
-	private GameObject GetBonusFromType(string type)
+	private GameObject GetBonusFromType(string type, BonusType bonusType)
 	{
 		string color = type.Split('_')[1].Trim();
-		foreach (var item in BonusPrefabs)
+
+		List<GameObject> bonusPrefabs = new List<GameObject>();
+
+		if (bonusType == BonusType.Ultimate)
+		{
+			return Ultimate;
+		}
+		else if (bonusType == BonusType.Bomb)
+		{
+			bonusPrefabs.AddRange(BombPrefabs);
+		}
+		else if (bonusType == BonusType.Horizontal)
+		{
+			bonusPrefabs.AddRange(HorizontalPrefabs);
+		}
+		else if (bonusType == BonusType.Vertical)
+		{
+			bonusPrefabs.AddRange(VerticalPrefabs);
+		}
+
+		foreach (var item in bonusPrefabs)
 		{
 			if (item.GetComponent<Shape>().Type.Contains(color))
 			{
 				return item;
 			}
 		}
+
 		throw new System.Exception("wrong type");
 	}
 

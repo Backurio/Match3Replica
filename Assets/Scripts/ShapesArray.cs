@@ -98,6 +98,21 @@ public class ShapesArray
 		return false;
 	}
 
+	private IEnumerable<GameObject> ContainsBonus(IEnumerable<GameObject> matches)
+	{
+		List<GameObject> candiesWithBonus = new List<GameObject>();
+
+		foreach (var item in matches)
+		{
+			if (item.GetComponent<Shape>().Bonus != BonusType.None)
+			{
+				candiesWithBonus.Add(item);
+			}
+		}
+
+		return candiesWithBonus.Distinct();
+	}
+
 	private IEnumerable<GameObject> GetEntireRow(GameObject go)
 	{
 		List<GameObject> matches = new List<GameObject>();
@@ -127,26 +142,42 @@ public class ShapesArray
 		MatchesInfo matchesInfo = new MatchesInfo();
 
 		var horizontalMatches = GetMatchesHorizontally(go);
-		if (ContainsDestroyRowColumnBonus(horizontalMatches))
-		{
-			horizontalMatches = GetEntireRow(go);
-			if (!BonusTypeUtilities.ContainsDestroyWholeRowColumn(matchesInfo.BonusesContained))
-			{
-				matchesInfo.BonusesContained |= BonusType.DestroyWholeRowColumn;
-			}
-		}
 		matchesInfo.AddObjectRange(horizontalMatches);
+		matchesInfo.HorizontalMatches = horizontalMatches.Count();
 
 		var verticalMatches = GetMatchesVertically(go);
-		if (ContainsDestroyRowColumnBonus(verticalMatches))
+		matchesInfo.AddObjectRange(verticalMatches);
+		matchesInfo.VerticalMatches = verticalMatches.Count();
+
+		if (ContainsBonus(horizontalMatches) != null)
 		{
-			horizontalMatches = GetEntireColumn(go);
-			if (!BonusTypeUtilities.ContainsDestroyWholeRowColumn(matchesInfo.BonusesContained))
+			foreach (var item in horizontalMatches)
 			{
-				matchesInfo.BonusesContained |= BonusType.DestroyWholeRowColumn;
+				if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
+				{
+					matchesInfo.AddObjectRange(GetEntireRow(item));
+				}
+				else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
+				{
+					matchesInfo.AddObjectRange(GetEntireColumn(item));
+				}
 			}
 		}
-		matchesInfo.AddObjectRange(verticalMatches);
+
+		if (ContainsBonus(verticalMatches) != null)
+		{
+			foreach (var item in verticalMatches)
+			{
+				if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
+				{
+					matchesInfo.AddObjectRange(GetEntireRow(item));
+				}
+				else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
+				{
+					matchesInfo.AddObjectRange(GetEntireColumn(item));
+				}
+			}
+		}
 
 		return matchesInfo;
 	}

@@ -558,6 +558,25 @@ MonoBehaviour:
   - {fileID: 1632313847453722, guid: 6617a8fd42669994b819a88e308a100c, type: 2}
   - {fileID: 1361606156638268, guid: e6413dd667e52aa42939186e3edd638b, type: 2}
   - {fileID: 1539031656534722, guid: 9d92d36eba39f564f9b4e8f13aac0b58, type: 2}
+  HorizontalPrefabs:
+  - {fileID: 1656131690740054, guid: a3e85242571c82f41865c87016f53b42, type: 2}
+  - {fileID: 1061274053689338, guid: 3a1478f7e9c06434a8d004cfa0a3762f, type: 2}
+  - {fileID: 1632313847453722, guid: abeed7e8d465b2342adcd2b6db4ef5b6, type: 2}
+  - {fileID: 1361606156638268, guid: 7ffd7a586f6d2374ab5f415fd423e3b9, type: 2}
+  - {fileID: 1539031656534722, guid: 74fcfaeae0a3a5444b96bfea4539e014, type: 2}
+  VerticalPrefabs:
+  - {fileID: 1656131690740054, guid: ca0291891bdd20f4fa15beb45e335bf0, type: 2}
+  - {fileID: 1061274053689338, guid: c308d98ef2d608343ada0571ce62415f, type: 2}
+  - {fileID: 1632313847453722, guid: bf26345b4f61c304bb49d7c6b84b6fec, type: 2}
+  - {fileID: 1361606156638268, guid: 64c279a0ed8182b4d814e4bd859cdd80, type: 2}
+  - {fileID: 1539031656534722, guid: 2a1b2900de42ccb41a4fd5240d75e26d, type: 2}
+  BombPrefabs:
+  - {fileID: 1656131690740054, guid: d59e431bf9f333f4fba271c43ed3149d, type: 2}
+  - {fileID: 1061274053689338, guid: 5a13c6ecef0240d47a1fd268e7f0b976, type: 2}
+  - {fileID: 1632313847453722, guid: 6874d9c759e69be439b33b269f424eb1, type: 2}
+  - {fileID: 1361606156638268, guid: 17bb959d1f6b1ab4ab28d86277d0019e, type: 2}
+  - {fileID: 1539031656534722, guid: 4e93e6d89fd594f43a4a05ed5f6c44c4, type: 2}
+  Ultimate: {fileID: 1656131690740054, guid: e2db6b3f8f14ad544a4e6312cb090e24, type: 2}
   soundManager: {fileID: 799029699}
 --- !u!4 &436257501
 Transform:
