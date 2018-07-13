@@ -137,6 +137,32 @@ public class ShapesArray
 		return matches;
 	}
 
+	private IEnumerable<GameObject> GetBombRadius(GameObject go)
+	{
+		int goRow = go.GetComponent<Shape>().Row;
+		int goColumn = go.GetComponent<Shape>().Column;
+
+		List<GameObject> matches = new List<GameObject>();
+
+		for (int rowIndex = -1; rowIndex <= 1; rowIndex++)
+		{
+			for (int columnIndex = -1; columnIndex <= 1; columnIndex++)
+			{
+				if (!((rowIndex == 0) && (columnIndex == 0)))
+				{
+					int newRow = goRow + rowIndex;
+					int newColumn = goColumn + columnIndex;
+					if ((newRow >= 0) && (newRow < Constants.Rows) && (newColumn >= 0) && (newColumn < Constants.Columns))
+					{
+						matches.Add(shapes[newRow, newColumn]);
+					}
+				}
+			}
+		}
+
+		return matches;
+	}
+
 	public MatchesInfo GetMatches(GameObject go)
 	{
 		MatchesInfo matchesInfo = new MatchesInfo();
@@ -149,35 +175,79 @@ public class ShapesArray
 		matchesInfo.AddObjectRange(verticalMatches);
 		matchesInfo.VerticalMatches = verticalMatches.Count();
 
-		if (ContainsBonus(horizontalMatches) != null)
-		{
-			foreach (var item in horizontalMatches)
-			{
-				if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
-				{
-					matchesInfo.AddObjectRange(GetEntireRow(item));
-				}
-				else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
-				{
-					matchesInfo.AddObjectRange(GetEntireColumn(item));
-				}
-			}
-		}
+		bool containsBonuses = false;
 
-		if (ContainsBonus(verticalMatches) != null)
+		do
 		{
-			foreach (var item in verticalMatches)
+			containsBonuses = false;
+
+			List<GameObject> temp = new List<GameObject>(matchesInfo.MatchedCandy);
+			foreach (var item in temp)
 			{
-				if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
+				switch (item.GetComponent<Shape>().Bonus)
 				{
-					matchesInfo.AddObjectRange(GetEntireRow(item));
-				}
-				else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
-				{
-					matchesInfo.AddObjectRange(GetEntireColumn(item));
+					case BonusType.Horizontal:
+						item.GetComponent<Shape>().Bonus = BonusType.None;
+						matchesInfo.AddObjectRange(GetEntireRow(item));
+						break;
+
+					case BonusType.Vertical:
+						item.GetComponent<Shape>().Bonus = BonusType.None;
+						matchesInfo.AddObjectRange(GetEntireColumn(item));
+						break;
+
+					case BonusType.Bomb:
+						item.GetComponent<Shape>().Bonus = BonusType.None;
+						matchesInfo.AddObjectRange(GetBombRadius(item));
+						break;
+
+					case BonusType.Ultimate:
+
+						break;
+
+					default:
+						break;
 				}
 			}
-		}
+
+			foreach (var item in matchesInfo.MatchedCandy)
+			{
+				if (item.GetComponent<Shape>().Bonus != BonusType.None)
+				{
+					containsBonuses = true;
+				}
+			}
+		} while (containsBonuses == true);
+
+		//if (ContainsBonus(horizontalMatches) != null)
+		//{
+		//	foreach (var item in horizontalMatches)
+		//	{
+		//		if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
+		//		{
+		//			matchesInfo.AddObjectRange(GetEntireRow(item));
+		//		}
+		//		else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
+		//		{
+		//			matchesInfo.AddObjectRange(GetEntireColumn(item));
+		//		}
+		//	}
+		//}
+
+		//if (ContainsBonus(verticalMatches) != null)
+		//{
+		//	foreach (var item in verticalMatches)
+		//	{
+		//		if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
+		//		{
+		//			matchesInfo.AddObjectRange(GetEntireRow(item));
+		//		}
+		//		else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
+		//		{
+		//			matchesInfo.AddObjectRange(GetEntireColumn(item));
+		//		}
+		//	}
+		//}
 
 		return matchesInfo;
 	}

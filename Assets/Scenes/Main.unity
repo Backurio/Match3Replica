@@ -617,7 +617,7 @@ MonoBehaviour:
   DebugText: {fileID: 970071620}
   ScoreText: {fileID: 1805211829}
   ShuffleText: {fileID: 728209509}
-  ShowDebugInfo: 0
+  DebuggingMode: 1
   shapesContainer: {fileID: 1130954533}
   RestartButton: {fileID: 1038957704}
   PremadeLevelButton: {fileID: 271890243}
@@ -882,7 +882,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 403, y: 1787}
+  m_AnchoredPosition: {x: -369, y: 1472}
   m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &783778840

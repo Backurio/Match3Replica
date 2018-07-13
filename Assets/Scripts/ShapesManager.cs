@@ -314,28 +314,42 @@ public class ShapesManager : MonoBehaviour
 				// user has clicked with the right mousebutton
 				if (Input.GetMouseButtonDown(1) == true)
 				{
+					// stop check for potential matches coroutine to prevent an error when changing a potential match object
+					StopCheckForPotentialMatches();
+
 					// get the hit position
 					var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 					// if hit occured
 					if (hit.collider != null)
 					{
-						// destroy the current candy
 						hitGo = hit.collider.gameObject;
+
+						// find the next candy according to the candy prefabs
+						for (int i = 0; i < CandyPrefabs.Length; i++)
+						{
+							if (CandyPrefabs[i].GetComponent<Shape>().Type == hitGo.GetComponent<Shape>().Type)
+							{
+								nextCandy = i + 1;
+								if (nextCandy >= CandyPrefabs.Length)
+								{
+									nextCandy = 0;
+								}
+								break;
+							}
+						}
+
+						// destroy the current candy
 						int hitRow = hitGo.GetComponent<Shape>().Row;
 						int hitColumn = hitGo.GetComponent<Shape>().Column;
 						Destroy(shapes[hitRow, hitColumn]);
 
-						// create a new candy from the prefab candies at the same position
+						// create a new candy according the nextCandy from the prefab candies at the same position
 						GameObject newCandy = CandyPrefabs[nextCandy];
 						InstantiateAndPlaceNewCandy(hitRow, hitColumn, newCandy);
-
-						// increase the candy prefabs index to cycle throw the prefab candies
-						nextCandy++;
-						if (nextCandy >= CandyPrefabs.Length)
-						{
-							nextCandy = 0;
-						}
 					}
+
+					// restart the check for potential matches coroutine
+					StartCheckForPotentialMatches();
 				}
 			}
 		}
