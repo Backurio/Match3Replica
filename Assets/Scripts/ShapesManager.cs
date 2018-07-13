@@ -18,6 +18,9 @@ public class ShapesManager : MonoBehaviour
 	public Button PremadeLevelButton;
 	public Transform PlayArea;
 
+	public Button ToggleGraphyButton;
+	public GameObject Graphy;
+
 	private int score;
 
 	public readonly Vector2 CandySize = Vector2.one * Constants.CandySize;
@@ -380,8 +383,6 @@ public class ShapesManager : MonoBehaviour
 		bool hitGoBonus = (hitGoMatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
 		bool hitGo2Bonus = (hitGo2MatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
 
-		// todo: add create bonus for hitGo2
-
 		int timesRun = 1;
 		while (totalMatches.Count() >= Constants.MinimumMatches)
 		{
@@ -570,6 +571,7 @@ public class ShapesManager : MonoBehaviour
 		score = 0;
 		ShowScore();
 		state = GameState.None;
+		Graphy.SetActive(false);
 
 		if (shapes != null)
 		{
@@ -711,5 +713,10 @@ public class ShapesManager : MonoBehaviour
 		yield return new WaitForSeconds(Constants.WaitBeforeShuffling);
 		ShuffleCandies();
 		ShuffleText.SetActive(false);
+	}
+
+	public void ToggleGraphy()
+	{
+		Graphy.SetActive(!Graphy.activeSelf);
 	}
 }
