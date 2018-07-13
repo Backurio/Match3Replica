@@ -403,14 +403,50 @@ public class ShapesManager : MonoBehaviour
 		hitGo2.transform.DOMove(hitGo.transform.position, Constants.SwapAnimationDuration);
 		yield return new WaitForSeconds(Constants.SwapAnimationDuration);
 
-		// get the matches via the helper methods
-		var hitGoMatchesInfo = shapes.GetMatches(hitGo);
-		var hitGo2MatchesInfo = shapes.GetMatches(hitGo2);
+		// check if ultimate was used
+		bool goCombinedWithUltimate = false;
+		bool go2CombinedWithUltimate = false;
+
+		// check if one of the two objects was combined with an ultimate
+		if (hitGo2.GetComponent<Shape>().Type == "Ultimate")
+		{
+			goCombinedWithUltimate = true;
+		}
+
+		if (hitGo.GetComponent<Shape>().Type == "Ultimate")
+		{
+			go2CombinedWithUltimate = true;
+		}
+
+		MatchesInfo hitGoMatchesInfo = new MatchesInfo();
+		MatchesInfo hitGo2MatchesInfo = new MatchesInfo();
+
+		// check if both objects have been an ultimate, if yes, all objects will be added to the totalmatches
+		if ((goCombinedWithUltimate == true) && (go2CombinedWithUltimate == true))
+		{
+			hitGoMatchesInfo = shapes.GetAllShapes();
+		}
+		else
+		{
+			// get the matches via the helper methods
+			hitGoMatchesInfo = shapes.GetMatches(hitGo, goCombinedWithUltimate);
+			hitGo2MatchesInfo = shapes.GetMatches(hitGo2, go2CombinedWithUltimate);
+		}
+
+		// add the ultimate object to the matches to destroy it
+		if (goCombinedWithUltimate == true)
+		{
+			hitGoMatchesInfo.AddObject(hitGo2);
+		}
+		if (go2CombinedWithUltimate == true)
+		{
+			hitGo2MatchesInfo.AddObject(hitGo);
+		}
 
 		var totalMatches = hitGoMatchesInfo.MatchedCandy.Union(hitGo2MatchesInfo.MatchedCandy).Distinct();
 
 		// if user's swap didn't create at least a 3-match, undo their swap
-		if (totalMatches.Count() < Constants.MinimumMatches)
+		if ((totalMatches.Count() < Constants.MinimumMatches) && ((goCombinedWithUltimate == false) && (go2CombinedWithUltimate == false)))
 		{
 			hitGo.transform.DOMove(hitGo2.transform.position, Constants.SwapAnimationDuration);
 			hitGo2.transform.DOMove(hitGo.transform.position, Constants.SwapAnimationDuration);
@@ -516,16 +552,22 @@ public class ShapesManager : MonoBehaviour
 			bonusType = BonusType.Bomb;
 		}
 
-		GameObject Bonus = Instantiate(GetBonusFromType(hitGoCache.Type, bonusType),
+		GameObject newBonusCandy = Instantiate(GetBonusFromType(hitGoCache.Type, bonusType),
 									   BottomLeft + new Vector2(hitGoCache.Column * CandySize.x, hitGoCache.Row * CandySize.y),
 									   Quaternion.identity,
 									   shapesContainer) as GameObject;
-		shapes[hitGoCache.Row, hitGoCache.Column] = Bonus;
-		var BonusShape = Bonus.GetComponent<Shape>();
+		shapes[hitGoCache.Row, hitGoCache.Column] = newBonusCandy;
+		var BonusShape = newBonusCandy.GetComponent<Shape>();
 		// will have the same type as the normal candy
 		BonusShape.Assign(hitGoCache.Type, hitGoCache.Row, hitGoCache.Column);
 		// add the proper bonus type
 		BonusShape.Bonus = bonusType;
+
+		// set the shape type to Ultimate if the Bonustype is Ultimate
+		if (BonusShape.Bonus == BonusType.Ultimate)
+		{
+			BonusShape.Type = "Ultimate";
+		}
 	}
 
 	private AlteredCandyInfo CreateNewCandyInSpecificColumns(IEnumerable<int> columnsWithMissingCandy)

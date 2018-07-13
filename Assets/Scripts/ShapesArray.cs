@@ -77,7 +77,7 @@ public class ShapesArray
 		List<GameObject> matches = new List<GameObject>();
 		foreach (var go in gos)
 		{
-			matches.AddRange(GetMatches(go).MatchedCandy);
+			matches.AddRange(GetMatches(go, false).MatchedCandy);
 		}
 		return matches.Distinct();
 	}
@@ -163,17 +163,42 @@ public class ShapesArray
 		return matches;
 	}
 
-	public MatchesInfo GetMatches(GameObject go)
+	public MatchesInfo GetAllShapes()
 	{
 		MatchesInfo matchesInfo = new MatchesInfo();
 
-		var horizontalMatches = GetMatchesHorizontally(go);
-		matchesInfo.AddObjectRange(horizontalMatches);
-		matchesInfo.HorizontalMatches = horizontalMatches.Count();
+		foreach (var item in shapes)
+		{
+			matchesInfo.AddObject(item);
+		}
 
-		var verticalMatches = GetMatchesVertically(go);
-		matchesInfo.AddObjectRange(verticalMatches);
-		matchesInfo.VerticalMatches = verticalMatches.Count();
+		return matchesInfo;
+	}
+
+	public MatchesInfo GetMatches(GameObject go, bool combinedWithUltimate)
+	{
+		MatchesInfo matchesInfo = new MatchesInfo();
+
+		if (combinedWithUltimate == true)
+		{
+			foreach (var item in shapes)
+			{
+				if (item.GetComponent<Shape>().Type == go.GetComponent<Shape>().Type)
+				{
+					matchesInfo.AddObject(item);
+				}
+			}
+		}
+		else
+		{
+			var horizontalMatches = GetMatchesHorizontally(go);
+			matchesInfo.AddObjectRange(horizontalMatches);
+			matchesInfo.HorizontalMatches = horizontalMatches.Count();
+
+			var verticalMatches = GetMatchesVertically(go);
+			matchesInfo.AddObjectRange(verticalMatches);
+			matchesInfo.VerticalMatches = verticalMatches.Count();
+		}
 
 		bool containsBonuses = false;
 
@@ -218,36 +243,6 @@ public class ShapesArray
 				}
 			}
 		} while (containsBonuses == true);
-
-		//if (ContainsBonus(horizontalMatches) != null)
-		//{
-		//	foreach (var item in horizontalMatches)
-		//	{
-		//		if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
-		//		{
-		//			matchesInfo.AddObjectRange(GetEntireRow(item));
-		//		}
-		//		else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
-		//		{
-		//			matchesInfo.AddObjectRange(GetEntireColumn(item));
-		//		}
-		//	}
-		//}
-
-		//if (ContainsBonus(verticalMatches) != null)
-		//{
-		//	foreach (var item in verticalMatches)
-		//	{
-		//		if (item.GetComponent<Shape>().Bonus == BonusType.Horizontal)
-		//		{
-		//			matchesInfo.AddObjectRange(GetEntireRow(item));
-		//		}
-		//		else if (item.GetComponent<Shape>().Bonus == BonusType.Vertical)
-		//		{
-		//			matchesInfo.AddObjectRange(GetEntireColumn(item));
-		//		}
-		//	}
-		//}
 
 		return matchesInfo;
 	}
