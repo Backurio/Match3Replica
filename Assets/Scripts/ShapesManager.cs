@@ -9,7 +9,7 @@ public class ShapesManager : MonoBehaviour
 {
 	public Text DebugText, ScoreText;
 	public GameObject ShuffleText;
-	public bool ShowDebugInfo = false;
+	public bool DebuggingMode = false;
 
 	public ShapesArray shapes;
 	public Transform shapesContainer;
@@ -22,6 +22,7 @@ public class ShapesManager : MonoBehaviour
 	public GameObject Graphy;
 
 	private int score;
+	private int nextCandy;
 
 	public readonly Vector2 CandySize = Vector2.one * Constants.CandySize;
 	public readonly Vector2 BottomLeft = -Vector2.one * Constants.CandySize * 7.0f / 2.0f;
@@ -49,7 +50,7 @@ public class ShapesManager : MonoBehaviour
 
 	private void Awake()
 	{
-		DebugText.enabled = ShowDebugInfo;
+		DebugText.enabled = DebuggingMode;
 		ShuffleText.SetActive(false);
 	}
 
@@ -288,9 +289,9 @@ public class ShapesManager : MonoBehaviour
 
 	private void Update()
 	{
-		if (ShowDebugInfo)
+		if (DebuggingMode)
 		{
-			DebugText.text = DebugUtilities.GetArrayContents(shapes);
+			//DebugText.text = DebugUtilities.GetArrayContents(shapes);
 		}
 
 		if (state == GameState.None)
@@ -305,6 +306,36 @@ public class ShapesManager : MonoBehaviour
 				{
 					hitGo = hit.collider.gameObject;
 					state = GameState.SelectionStarted;
+				}
+			}
+			// debugging only functionality
+			if (DebuggingMode == true)
+			{
+				// user has clicked with the right mousebutton
+				if (Input.GetMouseButtonDown(1) == true)
+				{
+					// get the hit position
+					var hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+					// if hit occured
+					if (hit.collider != null)
+					{
+						// destroy the current candy
+						hitGo = hit.collider.gameObject;
+						int hitRow = hitGo.GetComponent<Shape>().Row;
+						int hitColumn = hitGo.GetComponent<Shape>().Column;
+						Destroy(shapes[hitRow, hitColumn]);
+
+						// create a new candy from the prefab candies at the same position
+						GameObject newCandy = CandyPrefabs[nextCandy];
+						InstantiateAndPlaceNewCandy(hitRow, hitColumn, newCandy);
+
+						// increase the candy prefabs index to cycle throw the prefab candies
+						nextCandy++;
+						if (nextCandy >= CandyPrefabs.Length)
+						{
+							nextCandy = 0;
+						}
+					}
 				}
 			}
 		}
@@ -569,6 +600,7 @@ public class ShapesManager : MonoBehaviour
 		StopAllCoroutines();
 
 		score = 0;
+		nextCandy = 0;
 		ShowScore();
 		state = GameState.None;
 		Graphy.SetActive(false);
