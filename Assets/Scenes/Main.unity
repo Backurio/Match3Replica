@@ -113,6 +113,10 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &91037608 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 177638, guid: 0abab5bb77339e4428787a870eb31bd3, type: 2}
+  m_PrefabInternal: {fileID: 2055338768}
 --- !u!1 &170076733
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,10 +569,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: e0b6c9236f8cbca4a873f8d5cd57cfa7, type: 3}
-    m_FontSize: 50
+    m_FontSize: 30
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 5
+    m_MinSize: 3
     m_MaxSize: 50
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -618,6 +622,8 @@ MonoBehaviour:
   RestartButton: {fileID: 1038957704}
   PremadeLevelButton: {fileID: 271890243}
   PlayArea: {fileID: 2031311725}
+  ToggleGraphyButton: {fileID: 783778840}
+  Graphy: {fileID: 91037608}
   CandyPrefabs:
   - {fileID: 1756043322006762, guid: e77d39b6491086042a4e2e31fab65336, type: 2}
   - {fileID: 1297308626012266, guid: 8abf65689ee652c40b9316e03e1cb578, type: 2}
@@ -835,7 +841,7 @@ RectTransform:
   - {fileID: 695218447}
   - {fileID: 1262769236}
   m_Father: {fileID: 2104877334}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -872,12 +878,12 @@ RectTransform:
   m_Children:
   - {fileID: 416867883}
   m_Father: {fileID: 2104877334}
-  m_RootOrder: 6
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -271, y: 1520}
-  m_SizeDelta: {x: 300, y: 200}
+  m_AnchoredPosition: {x: 403, y: 1787}
+  m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &783778840
 MonoBehaviour:
@@ -919,7 +925,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 436257500}
-        m_MethodName: InitializeCandyAndSpawnPositions
+        m_MethodName: ToggleGraphy
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1131,7 +1137,7 @@ RectTransform:
   m_Children:
   - {fileID: 1009520639}
   m_Father: {fileID: 2104877334}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
@@ -2174,9 +2180,9 @@ RectTransform:
   - {fileID: 970071619}
   - {fileID: 1038957703}
   - {fileID: 271890242}
+  - {fileID: 783778839}
   - {fileID: 864379356}
   - {fileID: 728209510}
-  - {fileID: 783778839}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
