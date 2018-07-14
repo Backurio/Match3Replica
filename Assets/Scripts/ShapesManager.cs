@@ -418,14 +418,15 @@ public class ShapesManager : MonoBehaviour
 			DuplicateCandy(hitGo2);
 		}
 
-		MatchesInfo hitGoMatchesInfo = new MatchesInfo();
-		MatchesInfo hitGo2MatchesInfo = new MatchesInfo();
+		List<MatchesInfo> matchesInfos = new List<MatchesInfo>();
 
 		// get the matches via the helper methods
-		hitGoMatchesInfo = shapes.GetMatches(hitGo, hitGo2);
-		hitGo2MatchesInfo = shapes.GetMatches(hitGo2, hitGo);
+		matchesInfos.Add(shapes.GetMatches(hitGo, hitGo2));
+		matchesInfos.Add(shapes.GetMatches(hitGo2, hitGo));
 
-		var totalMatches = hitGoMatchesInfo.MatchedCandy.Union(hitGo2MatchesInfo.MatchedCandy).Distinct();
+
+		var totalMatches = matchesInfos[0].MatchedCandy.Union(matchesInfos[1].MatchedCandy).Distinct();
+		//var totalMatches = hitGoMatchesInfo.MatchedCandy.Union(hitGo2MatchesInfo.MatchedCandy).Distinct();
 
 		// if user's swap didn't create at least a 3-match, undo their swap
 		if (totalMatches.Count() < Constants.MinimumMatches)
@@ -444,8 +445,13 @@ public class ShapesManager : MonoBehaviour
 		}
 
 		// decide if a bonus shall be added to one of the 2 user matches
-		bool hitGoAddBonus = (hitGoMatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
-		bool hitGo2AddBonus = (hitGo2MatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
+		foreach (var item in matchesInfos)
+		{
+			if (item.Matches >= Constants.MinimumMatchesForBonus)
+			{
+				item.CreateBonus = true;
+			}
+		}
 
 		int timesRun = 1;
 		while (totalMatches.Count() >= Constants.MinimumMatches)
@@ -466,17 +472,14 @@ public class ShapesManager : MonoBehaviour
 				RemoveFromScene(item);
 			}
 
-			if (hitGoAddBonus == true)
+			foreach (var item in matchesInfos)
 			{
-				CreateBonus(hitGo, hitGoMatchesInfo);
+				if (item.CreateBonus == true)
+				{
+					CreateBonus(item.OriginGameObject, item);
+					item.CreateBonus = false;
+				}
 			}
-			hitGoAddBonus = false;
-
-			if (hitGo2AddBonus == true)
-			{
-				CreateBonus(hitGo2, hitGo2MatchesInfo);
-			}
-			hitGo2AddBonus = false;
 
 			// get the columns that we had a collapse
 			var columns = totalMatches.Select(go => go.GetComponent<Shape>().Column).Distinct();

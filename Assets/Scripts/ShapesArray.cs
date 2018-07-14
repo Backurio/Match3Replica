@@ -172,14 +172,15 @@ public class ShapesArray
 	public MatchesInfo GetMatches(GameObject go, GameObject go2 = null)
 	{
 		BonusType goBonus = go.GetComponent<Shape>().Bonus;
-		int goRow = go.GetComponent<Shape>().Row;
-		int goColumn = go.GetComponent<Shape>().Column;
 		BonusType go2Bonus = BonusType.None;
 		if (go2 != null)
 		{
 			go2Bonus = go2.GetComponent<Shape>().Bonus;
 		}
+
 		MatchesInfo matchesInfo = new MatchesInfo();
+		matchesInfo.OriginGameObject = go;
+
 		bool[,] bonusUsed = new bool[Constants.Rows, Constants.Columns];
 		for (int i = 0; i < Constants.Rows; i++)
 		{
@@ -219,50 +220,12 @@ public class ShapesArray
 			else if (((goBonus == BonusType.Vertical) || (goBonus == BonusType.Horizontal)) &&
 					 (go2Bonus == BonusType.Bomb))
 			{
-				go.GetComponent<Shape>().Bonus = BonusType.None;
-				go2.GetComponent<Shape>().Bonus = BonusType.None;
-				matchesInfo.AddObjectRange(GetEntireColumn(go));
-				matchesInfo.AddObjectRange(GetEntireRow(go));
-				for (int rowIndex = -1; rowIndex <= 1; rowIndex += 2)
-				{
-					int newRow = goRow + rowIndex;
-					if ((newRow >= 0) && (newRow < Constants.Rows))
-					{
-						matchesInfo.AddObjectRange(GetEntireRow(shapes[newRow, goColumn]));
-					}
-				}
-				for (int columnIndex = -1; columnIndex <= 1; columnIndex += 2)
-				{
-					int newColumn = goColumn + columnIndex;
-					if ((newColumn >= 0) && (newColumn < Constants.Columns))
-					{
-						matchesInfo.AddObjectRange(GetEntireColumn(shapes[goRow, newColumn]));
-					}
-				}
+				matchesInfo.AddObjectRange(GetBombAndVerticalOrHorizontal(go, go2));
 			}
 			else if ((goBonus == BonusType.Bomb) &&
 					 ((go2Bonus == BonusType.Vertical) || (go2Bonus == BonusType.Horizontal)))
 			{
-				go.GetComponent<Shape>().Bonus = BonusType.None;
-				go2.GetComponent<Shape>().Bonus = BonusType.None;
-				matchesInfo.AddObjectRange(GetEntireColumn(go));
-				matchesInfo.AddObjectRange(GetEntireRow(go));
-				for (int rowIndex = -1; rowIndex <= 1; rowIndex += 2)
-				{
-					int newRow = goRow + rowIndex;
-					if ((newRow >= 0) && (newRow < Constants.Rows))
-					{
-						matchesInfo.AddObjectRange(GetEntireRow(shapes[newRow, goColumn]));
-					}
-				}
-				for (int columnIndex = -1; columnIndex <= 1; columnIndex += 2)
-				{
-					int newColumn = goColumn + columnIndex;
-					if ((newColumn >= 0) && (newColumn < Constants.Columns))
-					{
-						matchesInfo.AddObjectRange(GetEntireColumn(shapes[goRow, newColumn]));
-					}
-				}
+				matchesInfo.AddObjectRange(GetBombAndVerticalOrHorizontal(go, go2));
 			}
 			else
 			{
@@ -333,6 +296,39 @@ public class ShapesArray
 		}
 
 		return matchesInfo;
+	}
+
+	private List<GameObject> GetBombAndVerticalOrHorizontal(GameObject go, GameObject go2)
+	{
+		List<GameObject> matches = new List<GameObject>();
+
+		int goRow = go.GetComponent<Shape>().Row;
+		int goColumn = go.GetComponent<Shape>().Column;
+
+		go.GetComponent<Shape>().Bonus = BonusType.None;
+		go2.GetComponent<Shape>().Bonus = BonusType.None;
+
+		matches.AddRange(GetEntireRow(go));
+		matches.AddRange(GetEntireColumn(go));
+
+		for (int rowIndex = -1; rowIndex <= 1; rowIndex += 2)
+		{
+			int newRow = goRow + rowIndex;
+			if ((newRow >= 0) && (newRow < Constants.Rows))
+			{
+				matches.AddRange(GetEntireRow(shapes[newRow, goColumn]));
+			}
+		}
+		for (int columnIndex = -1; columnIndex <= 1; columnIndex += 2)
+		{
+			int newColumn = goColumn + columnIndex;
+			if ((newColumn >= 0) && (newColumn < Constants.Columns))
+			{
+				matches.AddRange(GetEntireColumn(shapes[goRow, newColumn]));
+			}
+		}
+
+		return matches;
 	}
 
 	private IEnumerable<GameObject> GetMatchesHorizontally(GameObject go)
