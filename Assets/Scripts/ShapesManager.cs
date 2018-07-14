@@ -404,60 +404,31 @@ public class ShapesManager : MonoBehaviour
 		hitGo2.transform.DOMove(hitGo.transform.position, Constants.SwapAnimationDuration);
 		yield return new WaitForSeconds(Constants.SwapAnimationDuration);
 
-		// check if ultimate was used
-		bool goCombinedWithUltimate = false;
-		bool go2CombinedWithUltimate = false;
+		BonusType hitGoBonus = hitGo.GetComponent<Shape>().Bonus;
+		BonusType hitGo2Bonus = hitGo2.GetComponent<Shape>().Bonus;
 
 		// check if one of the two objects was combined with an ultimate
-		if (hitGo2.GetComponent<Shape>().Type == "Ultimate")
+		if ((hitGo2Bonus == BonusType.Ultimate) && (hitGoBonus != BonusType.Ultimate) && (hitGoBonus != BonusType.None))
 		{
-			// only call duplicate if the object is a bonus object
-			if (hitGo.GetComponent<Shape>().Bonus != BonusType.None)
-			{
-				DuplicateCandy(hitGo);
-			}
-			goCombinedWithUltimate = true;
+			DuplicateCandy(hitGo);
 		}
 
-		if (hitGo.GetComponent<Shape>().Type == "Ultimate")
+		if ((hitGoBonus == BonusType.Ultimate) && (hitGo2Bonus != BonusType.Ultimate) && (hitGo2Bonus != BonusType.None))
 		{
-			// only call duplicate if the object is a bonus object
-			if (hitGo2.GetComponent<Shape>().Bonus != BonusType.None)
-			{
-				DuplicateCandy(hitGo2);
-			}
-			go2CombinedWithUltimate = true;
+			DuplicateCandy(hitGo2);
 		}
 
 		MatchesInfo hitGoMatchesInfo = new MatchesInfo();
 		MatchesInfo hitGo2MatchesInfo = new MatchesInfo();
 
-		// check if both objects have been an ultimate, if yes, all objects will be added to the totalmatches
-		if ((goCombinedWithUltimate == true) && (go2CombinedWithUltimate == true))
-		{
-			hitGoMatchesInfo = shapes.GetAllShapes();
-		}
-		else
-		{
-			// get the matches via the helper methods
-			hitGoMatchesInfo = shapes.GetMatches(hitGo, goCombinedWithUltimate);
-			hitGo2MatchesInfo = shapes.GetMatches(hitGo2, go2CombinedWithUltimate);
-		}
-
-		// add the ultimate object to the matches to destroy it
-		if (goCombinedWithUltimate == true)
-		{
-			hitGoMatchesInfo.AddObject(hitGo2);
-		}
-		if (go2CombinedWithUltimate == true)
-		{
-			hitGo2MatchesInfo.AddObject(hitGo);
-		}
+		// get the matches via the helper methods
+		hitGoMatchesInfo = shapes.GetMatches(hitGo, hitGo2);
+		hitGo2MatchesInfo = shapes.GetMatches(hitGo2, hitGo);
 
 		var totalMatches = hitGoMatchesInfo.MatchedCandy.Union(hitGo2MatchesInfo.MatchedCandy).Distinct();
 
 		// if user's swap didn't create at least a 3-match, undo their swap
-		if ((totalMatches.Count() < Constants.MinimumMatches) && ((goCombinedWithUltimate == false) && (go2CombinedWithUltimate == false)))
+		if (totalMatches.Count() < Constants.MinimumMatches)
 		{
 			hitGo.transform.DOMove(hitGo2.transform.position, Constants.SwapAnimationDuration);
 			hitGo2.transform.DOMove(hitGo.transform.position, Constants.SwapAnimationDuration);
@@ -472,8 +443,9 @@ public class ShapesManager : MonoBehaviour
 			StopCheckForPotentialMatches();
 		}
 
-		bool hitGoBonus = (hitGoMatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
-		bool hitGo2Bonus = (hitGo2MatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
+		// decide if a bonus shall be added to one of the 2 user matches
+		bool hitGoAddBonus = (hitGoMatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
+		bool hitGo2AddBonus = (hitGo2MatchesInfo.Matches >= Constants.MinimumMatchesForBonus);
 
 		int timesRun = 1;
 		while (totalMatches.Count() >= Constants.MinimumMatches)
@@ -494,17 +466,17 @@ public class ShapesManager : MonoBehaviour
 				RemoveFromScene(item);
 			}
 
-			if (hitGoBonus == true)
+			if (hitGoAddBonus == true)
 			{
 				CreateBonus(hitGo, hitGoMatchesInfo);
 			}
-			hitGoBonus = false;
+			hitGoAddBonus = false;
 
-			if (hitGo2Bonus == true)
+			if (hitGo2AddBonus == true)
 			{
 				CreateBonus(hitGo2, hitGo2MatchesInfo);
 			}
-			hitGo2Bonus = false;
+			hitGo2AddBonus = false;
 
 			// get the columns that we had a collapse
 			var columns = totalMatches.Select(go => go.GetComponent<Shape>().Column).Distinct();

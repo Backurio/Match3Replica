@@ -58,6 +58,16 @@ public class ShapesArray
 		shapes[g1Row, g1Column] = shapes[g2Row, g2Column];
 		shapes[g2Row, g2Column] = temp;
 
+		// set ultimate bonus type. needed for the rare case of combining an ultimate with the last object of a type which has no bonus type
+		if (g1Shape.Type == "Ultimate")
+		{
+			g1Shape.Bonus = BonusType.Ultimate;
+		}
+		if (g2Shape.Type == "Ultimate")
+		{
+			g2Shape.Bonus = BonusType.Ultimate;
+		}
+
 		// swap their respective properties
 		Shape.SwapColumnRow(g1Shape, g2Shape);
 	}
@@ -77,7 +87,7 @@ public class ShapesArray
 		List<GameObject> matches = new List<GameObject>();
 		foreach (var go in gos)
 		{
-			matches.AddRange(GetMatches(go, false).MatchedCandy);
+			matches.AddRange(GetMatches(go).MatchedCandy);
 		}
 		return matches.Distinct();
 	}
@@ -159,8 +169,16 @@ public class ShapesArray
 		return matchesInfo;
 	}
 
-	public MatchesInfo GetMatches(GameObject go, bool combinedWithUltimate)
+	public MatchesInfo GetMatches(GameObject go, GameObject go2 = null)
 	{
+		BonusType goBonus = go.GetComponent<Shape>().Bonus;
+		int goRow = go.GetComponent<Shape>().Row;
+		int goColumn = go.GetComponent<Shape>().Column;
+		BonusType go2Bonus = BonusType.None;
+		if (go2 != null)
+		{
+			go2Bonus = go2.GetComponent<Shape>().Bonus;
+		}
 		MatchesInfo matchesInfo = new MatchesInfo();
 		bool[,] bonusUsed = new bool[Constants.Rows, Constants.Columns];
 		for (int i = 0; i < Constants.Rows; i++)
@@ -170,83 +188,149 @@ public class ShapesArray
 				bonusUsed[i, j] = false;
 			}
 		}
-
-		if (combinedWithUltimate == true)
+		if (goBonus == BonusType.Ultimate)
 		{
-			foreach (var item in shapes)
+			if (go2Bonus == BonusType.Ultimate)
 			{
-				if (item.GetComponent<Shape>().Type == go.GetComponent<Shape>().Type)
-				{
-					matchesInfo.AddObject(item);
-				}
+				matchesInfo = GetAllShapes();
 			}
 		}
 		else
 		{
-			var horizontalMatches = GetMatchesHorizontally(go);
-			matchesInfo.AddObjectRange(horizontalMatches);
-			matchesInfo.HorizontalMatches = horizontalMatches.Count();
+			if (go2Bonus == BonusType.Ultimate)
+			{
+				matchesInfo.AddObject(go2);
+				foreach (var item in shapes)
+				{
+					if (item.GetComponent<Shape>().Type == go.GetComponent<Shape>().Type)
+					{
+						matchesInfo.AddObject(item);
+					}
+				}
+			}
+			else if (((goBonus == BonusType.Vertical) || (goBonus == BonusType.Horizontal)) &&
+					 ((go2Bonus == BonusType.Vertical) || (go2Bonus == BonusType.Horizontal)))
+			{
+				go.GetComponent<Shape>().Bonus = BonusType.None;
+				go2.GetComponent<Shape>().Bonus = BonusType.None;
+				matchesInfo.AddObjectRange(GetEntireColumn(go));
+				matchesInfo.AddObjectRange(GetEntireRow(go));
+			}
+			else if (((goBonus == BonusType.Vertical) || (goBonus == BonusType.Horizontal)) &&
+					 (go2Bonus == BonusType.Bomb))
+			{
+				go.GetComponent<Shape>().Bonus = BonusType.None;
+				go2.GetComponent<Shape>().Bonus = BonusType.None;
+				matchesInfo.AddObjectRange(GetEntireColumn(go));
+				matchesInfo.AddObjectRange(GetEntireRow(go));
+				for (int rowIndex = -1; rowIndex <= 1; rowIndex += 2)
+				{
+					int newRow = goRow + rowIndex;
+					if ((newRow >= 0) && (newRow < Constants.Rows))
+					{
+						matchesInfo.AddObjectRange(GetEntireRow(shapes[newRow, goColumn]));
+					}
+				}
+				for (int columnIndex = -1; columnIndex <= 1; columnIndex += 2)
+				{
+					int newColumn = goColumn + columnIndex;
+					if ((newColumn >= 0) && (newColumn < Constants.Columns))
+					{
+						matchesInfo.AddObjectRange(GetEntireColumn(shapes[goRow, newColumn]));
+					}
+				}
+			}
+			else if ((goBonus == BonusType.Bomb) &&
+					 ((go2Bonus == BonusType.Vertical) || (go2Bonus == BonusType.Horizontal)))
+			{
+				go.GetComponent<Shape>().Bonus = BonusType.None;
+				go2.GetComponent<Shape>().Bonus = BonusType.None;
+				matchesInfo.AddObjectRange(GetEntireColumn(go));
+				matchesInfo.AddObjectRange(GetEntireRow(go));
+				for (int rowIndex = -1; rowIndex <= 1; rowIndex += 2)
+				{
+					int newRow = goRow + rowIndex;
+					if ((newRow >= 0) && (newRow < Constants.Rows))
+					{
+						matchesInfo.AddObjectRange(GetEntireRow(shapes[newRow, goColumn]));
+					}
+				}
+				for (int columnIndex = -1; columnIndex <= 1; columnIndex += 2)
+				{
+					int newColumn = goColumn + columnIndex;
+					if ((newColumn >= 0) && (newColumn < Constants.Columns))
+					{
+						matchesInfo.AddObjectRange(GetEntireColumn(shapes[goRow, newColumn]));
+					}
+				}
+			}
+			else
+			{
+				var horizontalMatches = GetMatchesHorizontally(go);
+				matchesInfo.AddObjectRange(horizontalMatches);
+				matchesInfo.HorizontalMatches = horizontalMatches.Count();
 
-			var verticalMatches = GetMatchesVertically(go);
-			matchesInfo.AddObjectRange(verticalMatches);
-			matchesInfo.VerticalMatches = verticalMatches.Count();
+				var verticalMatches = GetMatchesVertically(go);
+				matchesInfo.AddObjectRange(verticalMatches);
+				matchesInfo.VerticalMatches = verticalMatches.Count();
+			}
+
+			bool containsBonuses = false;
+
+			do
+			{
+				containsBonuses = false;
+
+				List<GameObject> temp = new List<GameObject>(matchesInfo.MatchedCandy);
+				foreach (var item in temp)
+				{
+					Shape shape = item.GetComponent<Shape>();
+					switch (shape.Bonus)
+					{
+						case BonusType.Horizontal:
+							bonusUsed[shape.Row, shape.Column] = true;
+							shape.Bonus = BonusType.None;
+							matchesInfo.AddObjectRange(GetEntireRow(item));
+							break;
+
+						case BonusType.Vertical:
+							bonusUsed[shape.Row, shape.Column] = true;
+							shape.Bonus = BonusType.None;
+							matchesInfo.AddObjectRange(GetEntireColumn(item));
+							break;
+
+						case BonusType.Bomb:
+							bonusUsed[shape.Row, shape.Column] = true;
+							shape.Bonus = BonusType.None;
+							matchesInfo.AddObjectRange(GetBombRadius(item));
+							break;
+
+						case BonusType.Ultimate:
+							bonusUsed[shape.Row, shape.Column] = true;
+
+							break;
+
+						default:
+							break;
+					}
+				}
+
+				foreach (var item in matchesInfo.MatchedCandy)
+				{
+					Shape shape = item.GetComponent<Shape>();
+
+					if (bonusUsed[shape.Row, shape.Column] == true)
+					{
+						shape.Bonus = BonusType.None;
+					}
+
+					if (shape.Bonus != BonusType.None)
+					{
+						containsBonuses = true;
+					}
+				}
+			} while (containsBonuses == true);
 		}
-
-		bool containsBonuses = false;
-
-		do
-		{
-			containsBonuses = false;
-
-			List<GameObject> temp = new List<GameObject>(matchesInfo.MatchedCandy);
-			foreach (var item in temp)
-			{
-				Shape shape = item.GetComponent<Shape>();
-				switch (shape.Bonus)
-				{
-					case BonusType.Horizontal:
-						bonusUsed[shape.Row, shape.Column] = true;
-						shape.Bonus = BonusType.None;
-						matchesInfo.AddObjectRange(GetEntireRow(item));
-						break;
-
-					case BonusType.Vertical:
-						bonusUsed[shape.Row, shape.Column] = true;
-						shape.Bonus = BonusType.None;
-						matchesInfo.AddObjectRange(GetEntireColumn(item));
-						break;
-
-					case BonusType.Bomb:
-						bonusUsed[shape.Row, shape.Column] = true;
-						shape.Bonus = BonusType.None;
-						matchesInfo.AddObjectRange(GetBombRadius(item));
-						break;
-
-					case BonusType.Ultimate:
-						bonusUsed[shape.Row, shape.Column] = true;
-
-						break;
-
-					default:
-						break;
-				}
-			}
-
-			foreach (var item in matchesInfo.MatchedCandy)
-			{
-				Shape shape = item.GetComponent<Shape>();
-
-				if (bonusUsed[shape.Row, shape.Column] == true)
-				{
-					shape.Bonus = BonusType.None;
-				}
-
-				if (shape.Bonus != BonusType.None)
-				{
-					containsBonuses = true;
-				}
-			}
-		} while (containsBonuses == true);
 
 		return matchesInfo;
 	}
