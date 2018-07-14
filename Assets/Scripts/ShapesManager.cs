@@ -34,7 +34,6 @@ public class ShapesManager : MonoBehaviour
 	private Vector2[] spawnPositions;
 	public GameObject[] CandyPrefabs;
 	public GameObject[] ExplosionPrefabs;
-	public GameObject[] BonusPrefabs;
 	public GameObject[] HorizontalPrefabs;
 	public GameObject[] VerticalPrefabs;
 	public GameObject[] BombPrefabs;
@@ -80,7 +79,8 @@ public class ShapesManager : MonoBehaviour
 		// just assign the name of the prefab
 		foreach (var item in CandyPrefabs)
 		{
-			item.GetComponent<Shape>().Type = item.name;
+			item.GetComponent<Shape>().Type = item.name.Split('_')[1].Trim();
+			item.GetComponent<Shape>().Bonus = BonusType.None;
 			item.transform.localScale = CandyScale;
 		}
 
@@ -89,7 +89,7 @@ public class ShapesManager : MonoBehaviour
 		foreach (var item in BombPrefabs)
 		{
 			// todo: understand this line o.O
-			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().GetComponent<Shape>().Type;
 			item.GetComponent<Shape>().Bonus = BonusType.Bomb;
 			item.transform.localScale = CandyScale;
 		}
@@ -98,7 +98,7 @@ public class ShapesManager : MonoBehaviour
 		foreach (var item in HorizontalPrefabs)
 		{
 			// todo: understand this line o.O
-			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().GetComponent<Shape>().Type;
 			item.GetComponent<Shape>().Bonus = BonusType.Horizontal;
 			item.transform.localScale = CandyScale;
 		}
@@ -107,7 +107,7 @@ public class ShapesManager : MonoBehaviour
 		foreach (var item in VerticalPrefabs)
 		{
 			// todo: understand this line o.O
-			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().GetComponent<Shape>().Type;
 			item.GetComponent<Shape>().Bonus = BonusType.Vertical;
 			item.transform.localScale = CandyScale;
 		}
@@ -576,7 +576,6 @@ public class ShapesManager : MonoBehaviour
 			bonusType = BonusType.Bomb;
 		}
 
-		//CreateNewBonusCandy(hitGoCache, bonusType);
 		InstantiateAndPlaceNewCandy(hitGoCache.Row, hitGoCache.Column, GetPrefabFromTypeAndBonus(hitGoCache.Type, bonusType), bonusType);
 	}
 
@@ -640,16 +639,6 @@ public class ShapesManager : MonoBehaviour
 				}
 			}
 		}
-		else if ((tokens.Count() == 2) && (tokens[1].Trim() == "B"))
-		{
-			foreach (var item in BonusPrefabs)
-			{
-				if (item.name.Contains(tokens[0].Trim()))
-				{
-					return item;
-				}
-			}
-		}
 
 		throw new System.Exception("Wrong type, check your premade level");
 	}
@@ -708,8 +697,6 @@ public class ShapesManager : MonoBehaviour
 
 	private GameObject GetPrefabFromTypeAndBonus(string type, BonusType bonusType)
 	{
-		string color = type.Split('_')[1].Trim();
-
 		List<GameObject> bonusPrefabs = new List<GameObject>();
 
 		if (bonusType == BonusType.Ultimate)
@@ -735,7 +722,7 @@ public class ShapesManager : MonoBehaviour
 
 		foreach (var item in bonusPrefabs)
 		{
-			if (item.GetComponent<Shape>().Type.Contains(color))
+			if (item.GetComponent<Shape>().Type.Contains(type))
 			{
 				return item;
 			}
