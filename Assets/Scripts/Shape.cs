@@ -26,7 +26,7 @@ public class Shape : MonoBehaviour
 		return string.Compare(Type, (otherShape as Shape).Type) == 0;
 	}
 
-	public void Assign(string type, int row, int column)
+	public void Assign(string type, int row, int column, BonusType bonusType = BonusType.None)
 	{
 		if (string.IsNullOrEmpty(type))
 		{
@@ -36,6 +36,7 @@ public class Shape : MonoBehaviour
 		Type = type;
 		Row = row;
 		Column = column;
+		Bonus = bonusType;
 	}
 
 	public static void SwapColumnRow(Shape a, Shape b)

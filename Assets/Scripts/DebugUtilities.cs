@@ -59,18 +59,8 @@ public class DebugUtilities : MonoBehaviour
 				{
 					var shape = shapes[row, column].GetComponent<Shape>();
 					x += shape.Row.ToString("D2") + "-" + shape.Column.ToString("D2");
-
 					x += shape.Type.Substring(5, 2);
-
-					if (BonusTypeUtilities.ContainsDestroyWholeRowColumn(shape.Bonus))
-					{
-						x += "B";
-					}
-					else
-					{
-						x += " ";
-					}
-
+					x += " ";
 					x += " | ";
 				}
 			}

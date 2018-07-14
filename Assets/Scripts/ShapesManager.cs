@@ -84,19 +84,13 @@ public class ShapesManager : MonoBehaviour
 			item.transform.localScale = CandyScale;
 		}
 
-		// assign the name of the respective "normal" candy as the type of the bonus
-		foreach (var item in BonusPrefabs)
-		{
-			// todo: understand this line o.O
-			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
-			item.transform.localScale = CandyScale;
-		}
 
 		// assign the name of the respective "normal" candy as the type of the bonus
 		foreach (var item in BombPrefabs)
 		{
 			// todo: understand this line o.O
 			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.GetComponent<Shape>().Bonus = BonusType.Bomb;
 			item.transform.localScale = CandyScale;
 		}
 
@@ -105,6 +99,7 @@ public class ShapesManager : MonoBehaviour
 		{
 			// todo: understand this line o.O
 			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.GetComponent<Shape>().Bonus = BonusType.Horizontal;
 			item.transform.localScale = CandyScale;
 		}
 
@@ -113,8 +108,14 @@ public class ShapesManager : MonoBehaviour
 		{
 			// todo: understand this line o.O
 			item.GetComponent<Shape>().Type = CandyPrefabs.Where(x => x.GetComponent<Shape>().Type.Contains(item.name.Split('_')[1].Trim())).Single().name;
+			item.GetComponent<Shape>().Bonus = BonusType.Vertical;
 			item.transform.localScale = CandyScale;
 		}
+
+		// ultimate
+		Ultimate.GetComponent<Shape>().Type = Ultimate.name;
+		Ultimate.GetComponent<Shape>().Bonus = BonusType.Ultimate;
+		Ultimate.transform.localScale = CandyScale;
 	}
 
 	public void InitializeCandyAndSpawnPositionFromPremadeLevel()
@@ -129,7 +130,7 @@ public class ShapesManager : MonoBehaviour
 			{
 				GameObject newCandy = null;
 				newCandy = GetSpecificCandyOrBonusForPremadeLevel(premadeLevel[row, column]);
-				InstantiateAndPlaceNewCandy(row, column, newCandy);
+				InstantiateAndPlaceNewCandy(row, column, newCandy, BonusType.None);
 			}
 		}
 
@@ -162,7 +163,7 @@ public class ShapesManager : MonoBehaviour
 					newCandy = GetRandomCandy();
 				}
 
-				InstantiateAndPlaceNewCandy(row, column, newCandy);
+				InstantiateAndPlaceNewCandy(row, column, newCandy, BonusType.None);
 			}
 		}
 
@@ -246,7 +247,7 @@ public class ShapesManager : MonoBehaviour
 					}
 
 					// place the new candy
-					InstantiateAndPlaceNewCandy(row, column, newCandy);
+					InstantiateAndPlaceNewCandy(row, column, newCandy, newCandy.GetComponent<Shape>().Bonus);
 					// remove the new candy from the list
 					variableCandyPool.Remove(newCandy);
 				}
@@ -263,15 +264,20 @@ public class ShapesManager : MonoBehaviour
 		SetupSpawnPosition();
 	}
 
-	private void InstantiateAndPlaceNewCandy(int row, int column, GameObject newCandy)
+	private void InstantiateAndPlaceNewCandy(int row, int column, GameObject newCandy, BonusType bonusType = BonusType.None)
 	{
 		GameObject go = Instantiate(newCandy,
 									BottomLeft + new Vector2(column * CandySize.x, row * CandySize.y),
 									Quaternion.identity,
 									shapesContainer) as GameObject;
 
+		//go.GetComponent<Shape>().Bonus = bonusType;
+		if (bonusType == BonusType.Ultimate)
+		{
+			go.GetComponent<Shape>().Type = "Ultimate";
+		}
 		// assign the specific properties
-		go.GetComponent<Shape>().Assign(newCandy.GetComponent<Shape>().Type, row, column);
+		go.GetComponent<Shape>().Assign(newCandy.GetComponent<Shape>().Type, row, column, bonusType);
 		go.GetComponent<BoxCollider2D>().enabled = true;
 		shapes[row, column] = go;
 	}
@@ -337,15 +343,10 @@ public class ShapesManager : MonoBehaviour
 								break;
 							}
 						}
-
-						// destroy the current candy
-						int hitRow = hitGo.GetComponent<Shape>().Row;
-						int hitColumn = hitGo.GetComponent<Shape>().Column;
-						Destroy(shapes[hitRow, hitColumn]);
-
 						// create a new candy according the nextCandy from the prefab candies at the same position
 						GameObject newCandy = CandyPrefabs[nextCandy];
-						InstantiateAndPlaceNewCandy(hitRow, hitColumn, newCandy);
+
+						ReplaceCandy(hit.collider.gameObject, newCandy);
 					}
 
 					// restart the check for potential matches coroutine
@@ -410,11 +411,13 @@ public class ShapesManager : MonoBehaviour
 		// check if one of the two objects was combined with an ultimate
 		if (hitGo2.GetComponent<Shape>().Type == "Ultimate")
 		{
+			DuplicateCandy(hitGo);
 			goCombinedWithUltimate = true;
 		}
 
 		if (hitGo.GetComponent<Shape>().Type == "Ultimate")
 		{
+			DuplicateCandy(hitGo2);
 			go2CombinedWithUltimate = true;
 		}
 
@@ -527,6 +530,27 @@ public class ShapesManager : MonoBehaviour
 		}
 	}
 
+	private void DuplicateCandy(GameObject go)
+	{
+		GameObject newCandy = GetPrefabFromTypeAndBonus(go.GetComponent<Shape>().Type, go.GetComponent<Shape>().Bonus);
+
+		foreach (var item in shapes.GetAllShapes().MatchedCandy)
+		{
+			if (item.GetComponent<Shape>().Type == go.GetComponent<Shape>().Type)
+			{
+				ReplaceCandy(item, newCandy);
+			}
+		}
+	}
+
+	private void ReplaceCandy(GameObject oldCandy, GameObject newCandy)
+	{
+		int row = oldCandy.GetComponent<Shape>().Row;
+		int column = oldCandy.GetComponent<Shape>().Column;
+		Destroy(shapes[row, column]);
+		InstantiateAndPlaceNewCandy(row, column, newCandy, newCandy.GetComponent<Shape>().Bonus);
+	}
+
 	private void CreateBonus(GameObject go, MatchesInfo matchesInfo)
 	{
 		Shape hitGoCache = go.GetComponent<Shape>();
@@ -552,22 +576,8 @@ public class ShapesManager : MonoBehaviour
 			bonusType = BonusType.Bomb;
 		}
 
-		GameObject newBonusCandy = Instantiate(GetBonusFromType(hitGoCache.Type, bonusType),
-									   BottomLeft + new Vector2(hitGoCache.Column * CandySize.x, hitGoCache.Row * CandySize.y),
-									   Quaternion.identity,
-									   shapesContainer) as GameObject;
-		shapes[hitGoCache.Row, hitGoCache.Column] = newBonusCandy;
-		var BonusShape = newBonusCandy.GetComponent<Shape>();
-		// will have the same type as the normal candy
-		BonusShape.Assign(hitGoCache.Type, hitGoCache.Row, hitGoCache.Column);
-		// add the proper bonus type
-		BonusShape.Bonus = bonusType;
-
-		// set the shape type to Ultimate if the Bonustype is Ultimate
-		if (BonusShape.Bonus == BonusType.Ultimate)
-		{
-			BonusShape.Type = "Ultimate";
-		}
+		//CreateNewBonusCandy(hitGoCache, bonusType);
+		InstantiateAndPlaceNewCandy(hitGoCache.Row, hitGoCache.Column, GetPrefabFromTypeAndBonus(hitGoCache.Type, bonusType), bonusType);
 	}
 
 	private AlteredCandyInfo CreateNewCandyInSpecificColumns(IEnumerable<int> columnsWithMissingCandy)
@@ -610,7 +620,6 @@ public class ShapesManager : MonoBehaviour
 
 	private void RemoveFromScene(GameObject item)
 	{
-		// todo: add explosion effects
 		GameObject explosion = GetRandomExplosion();
 		var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
 		Destroy(newExplosion, Constants.ExplosionDuration);
@@ -697,7 +706,7 @@ public class ShapesManager : MonoBehaviour
 		return ExplosionPrefabs[Random.Range(0, ExplosionPrefabs.Length)];
 	}
 
-	private GameObject GetBonusFromType(string type, BonusType bonusType)
+	private GameObject GetPrefabFromTypeAndBonus(string type, BonusType bonusType)
 	{
 		string color = type.Split('_')[1].Trim();
 
@@ -718,6 +727,10 @@ public class ShapesManager : MonoBehaviour
 		else if (bonusType == BonusType.Vertical)
 		{
 			bonusPrefabs.AddRange(VerticalPrefabs);
+		}
+		else if (bonusType == BonusType.None)
+		{
+			bonusPrefabs.AddRange(CandyPrefabs);
 		}
 
 		foreach (var item in bonusPrefabs)

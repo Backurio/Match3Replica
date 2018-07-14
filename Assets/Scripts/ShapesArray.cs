@@ -82,22 +82,6 @@ public class ShapesArray
 		return matches.Distinct();
 	}
 
-	private bool ContainsDestroyRowColumnBonus(IEnumerable<GameObject> matches)
-	{
-		if (matches.Count() >= Constants.MinimumMatches)
-		{
-			foreach (var go in matches)
-			{
-				if (BonusTypeUtilities.ContainsDestroyWholeRowColumn(go.GetComponent<Shape>().Bonus))
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
 	private IEnumerable<GameObject> ContainsBonus(IEnumerable<GameObject> matches)
 	{
 		List<GameObject> candiesWithBonus = new List<GameObject>();
@@ -178,6 +162,14 @@ public class ShapesArray
 	public MatchesInfo GetMatches(GameObject go, bool combinedWithUltimate)
 	{
 		MatchesInfo matchesInfo = new MatchesInfo();
+		bool[,] bonusUsed = new bool[Constants.Rows, Constants.Columns];
+		for (int i = 0; i < Constants.Rows; i++)
+		{
+			for (int j = 0; j < Constants.Columns; j++)
+			{
+				bonusUsed[i, j] = false;
+			}
+		}
 
 		if (combinedWithUltimate == true)
 		{
@@ -209,24 +201,29 @@ public class ShapesArray
 			List<GameObject> temp = new List<GameObject>(matchesInfo.MatchedCandy);
 			foreach (var item in temp)
 			{
-				switch (item.GetComponent<Shape>().Bonus)
+				Shape shape = item.GetComponent<Shape>();
+				switch (shape.Bonus)
 				{
 					case BonusType.Horizontal:
-						item.GetComponent<Shape>().Bonus = BonusType.None;
+						bonusUsed[shape.Row, shape.Column] = true;
+						shape.Bonus = BonusType.None;
 						matchesInfo.AddObjectRange(GetEntireRow(item));
 						break;
 
 					case BonusType.Vertical:
-						item.GetComponent<Shape>().Bonus = BonusType.None;
+						bonusUsed[shape.Row, shape.Column] = true;
+						shape.Bonus = BonusType.None;
 						matchesInfo.AddObjectRange(GetEntireColumn(item));
 						break;
 
 					case BonusType.Bomb:
-						item.GetComponent<Shape>().Bonus = BonusType.None;
+						bonusUsed[shape.Row, shape.Column] = true;
+						shape.Bonus = BonusType.None;
 						matchesInfo.AddObjectRange(GetBombRadius(item));
 						break;
 
 					case BonusType.Ultimate:
+						bonusUsed[shape.Row, shape.Column] = true;
 
 						break;
 
@@ -237,7 +234,14 @@ public class ShapesArray
 
 			foreach (var item in matchesInfo.MatchedCandy)
 			{
-				if (item.GetComponent<Shape>().Bonus != BonusType.None)
+				Shape shape = item.GetComponent<Shape>();
+
+				if (bonusUsed[shape.Row, shape.Column] == true)
+				{
+					shape.Bonus = BonusType.None;
+				}
+
+				if (shape.Bonus != BonusType.None)
 				{
 					containsBonuses = true;
 				}
