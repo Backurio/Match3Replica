@@ -424,9 +424,7 @@ public class ShapesManager : MonoBehaviour
 		matchesInfos.Add(shapes.GetMatches(hitGo, hitGo2));
 		matchesInfos.Add(shapes.GetMatches(hitGo2, hitGo));
 
-
 		var totalMatches = matchesInfos[0].MatchedCandy.Union(matchesInfos[1].MatchedCandy).Distinct();
-		//var totalMatches = hitGoMatchesInfo.MatchedCandy.Union(hitGo2MatchesInfo.MatchedCandy).Distinct();
 
 		// if user's swap didn't create at least a 3-match, undo their swap
 		if (totalMatches.Count() < Constants.MinimumMatches)
@@ -472,6 +470,7 @@ public class ShapesManager : MonoBehaviour
 				RemoveFromScene(item);
 			}
 
+			// check if there are any bonus objects to create
 			foreach (var item in matchesInfos)
 			{
 				if (item.CreateBonus == true)
@@ -499,8 +498,52 @@ public class ShapesManager : MonoBehaviour
 			// will wait for both of the above animations
 			yield return new WaitForSeconds(Constants.MoveAnimationMinDuration);
 
-			// search if there are matches with the new/collapsed items
-			totalMatches = shapes.GetMatches(collapsedCandyInfo.AlteredCandy).Union(shapes.GetMatches(newCandyInfo.AlteredCandy)).Distinct();
+			// search if there are matches with the collapsed objects and then new objects
+			matchesInfos = new List<MatchesInfo>();
+			matchesInfos.AddRange(shapes.GetMatchesInfos(collapsedCandyInfo.AlteredCandy));
+			matchesInfos.AddRange(shapes.GetMatchesInfos(newCandyInfo.AlteredCandy));
+
+			// boolean array to not create boni for the same match more than onces
+			bool[,] bonusCreated = new bool[Constants.Rows, Constants.Columns];
+			for (int i = 0; i < Constants.Rows; i++)
+			{
+				for (int j = 0; j < Constants.Columns; j++)
+				{
+					bonusCreated[i, j] = false;
+				}
+			}
+
+			// loop throw all found matches
+			List<GameObject> matches = new List<GameObject>();
+			foreach (var item in matchesInfos)
+			{
+				// check if bonus should be created
+				if (item.Matches >= Constants.MinimumMatchesForBonus)
+				{
+					bool bonus = true;
+					foreach (var go in item.MatchedCandy)
+					{
+						if (bonusCreated[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] == true)
+						{
+							bonus = false;
+						}
+					}
+
+					if (bonus == true)
+					{
+						item.CreateBonus = true;
+
+						foreach (var go in item.MatchedCandy)
+						{
+							bonusCreated[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] = true;
+						}
+					}
+				}
+				// save each object to save it then to totalMatches
+				matches.AddRange(item.MatchedCandy);
+			}
+
+			totalMatches = matches;
 
 			timesRun++;
 		}

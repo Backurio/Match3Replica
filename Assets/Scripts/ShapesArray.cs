@@ -82,14 +82,16 @@ public class ShapesArray
 		Swap(backupG1, backupG2);
 	}
 
-	public IEnumerable<GameObject> GetMatches(IEnumerable<GameObject> gos)
+	public List<MatchesInfo> GetMatchesInfos(IEnumerable<GameObject> gos)
 	{
-		List<GameObject> matches = new List<GameObject>();
-		foreach (var go in gos)
+		List<MatchesInfo> matchesInfos = new List<MatchesInfo>();
+
+		foreach (var item in gos)
 		{
-			matches.AddRange(GetMatches(go).MatchedCandy);
+			matchesInfos.Add(GetMatches(item));
 		}
-		return matches.Distinct();
+
+		return matchesInfos;
 	}
 
 	private IEnumerable<GameObject> ContainsBonus(IEnumerable<GameObject> matches)
