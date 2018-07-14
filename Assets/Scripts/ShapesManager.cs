@@ -411,13 +411,21 @@ public class ShapesManager : MonoBehaviour
 		// check if one of the two objects was combined with an ultimate
 		if (hitGo2.GetComponent<Shape>().Type == "Ultimate")
 		{
-			DuplicateCandy(hitGo);
+			// only call duplicate if the object is a bonus object
+			if (hitGo.GetComponent<Shape>().Bonus != BonusType.None)
+			{
+				DuplicateCandy(hitGo);
+			}
 			goCombinedWithUltimate = true;
 		}
 
 		if (hitGo.GetComponent<Shape>().Type == "Ultimate")
 		{
-			DuplicateCandy(hitGo2);
+			// only call duplicate if the object is a bonus object
+			if (hitGo2.GetComponent<Shape>().Bonus != BonusType.None)
+			{
+				DuplicateCandy(hitGo2);
+			}
 			go2CombinedWithUltimate = true;
 		}
 
@@ -532,13 +540,30 @@ public class ShapesManager : MonoBehaviour
 
 	private void DuplicateCandy(GameObject go)
 	{
-		GameObject newCandy = GetPrefabFromTypeAndBonus(go.GetComponent<Shape>().Type, go.GetComponent<Shape>().Bonus);
+		BonusType goBonus = go.GetComponent<Shape>().Bonus;
+		string goType = go.GetComponent<Shape>().Type;
+		List<GameObject> newCandy = new List<GameObject>();
+
+		// if the candy is horizontal or vertical, add both to the list
+		if ((goBonus == BonusType.Horizontal) || (goBonus == BonusType.Vertical))
+		{
+			newCandy.Add(GetPrefabFromTypeAndBonus(goType, BonusType.Horizontal));
+			newCandy.Add(GetPrefabFromTypeAndBonus(goType, BonusType.Vertical));
+		}
+		else
+		{
+			newCandy.Add(GetPrefabFromTypeAndBonus(goType, goBonus));
+		}
 
 		foreach (var item in shapes.GetAllShapes().MatchedCandy)
 		{
-			if (item.GetComponent<Shape>().Type == go.GetComponent<Shape>().Type)
+			if (item.GetComponent<Shape>().Type == goType)
 			{
-				ReplaceCandy(item, newCandy);
+				// only replace item if the BonusType is None to not downgrade the object
+				if (item.GetComponent<Shape>().Bonus == BonusType.None)
+				{
+					ReplaceCandy(item, newCandy[Random.Range(0, newCandy.Count)]);
+				}
 			}
 		}
 	}
