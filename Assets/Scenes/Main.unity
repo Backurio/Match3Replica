@@ -632,12 +632,6 @@ MonoBehaviour:
   - {fileID: 1922903201488580, guid: 20b1637dd52e95443988f6dec13d1609, type: 2}
   ExplosionPrefabs:
   - {fileID: 1943989212539218, guid: 6116eb0d4dbf36142911bc4deabb21d0, type: 2}
-  BonusPrefabs:
-  - {fileID: 1656131690740054, guid: 34a7dc21ef908694dbfd33096db7501a, type: 2}
-  - {fileID: 1061274053689338, guid: dff1e64ad514c4c4fbaec3ad39fba365, type: 2}
-  - {fileID: 1632313847453722, guid: 6617a8fd42669994b819a88e308a100c, type: 2}
-  - {fileID: 1361606156638268, guid: e6413dd667e52aa42939186e3edd638b, type: 2}
-  - {fileID: 1539031656534722, guid: 9d92d36eba39f564f9b4e8f13aac0b58, type: 2}
   HorizontalPrefabs:
   - {fileID: 1656131690740054, guid: a3e85242571c82f41865c87016f53b42, type: 2}
   - {fileID: 1061274053689338, guid: 3a1478f7e9c06434a8d004cfa0a3762f, type: 2}

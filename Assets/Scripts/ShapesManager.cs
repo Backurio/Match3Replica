@@ -297,6 +297,17 @@ public class ShapesManager : MonoBehaviour
 	{
 		if (DebuggingMode)
 		{
+			// take screenshot when the key "K" is pressed
+			if (Input.GetKeyDown(KeyCode.K) == true)
+			{
+				int superSize = 2;
+				string resolution = Screen.width * superSize + "x" + Screen.height * superSize + "_";
+				string dateAndTime = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+				string filename = Application.dataPath + "/../Screenshots/screen_" + resolution + dateAndTime + ".png";
+				ScreenCapture.CaptureScreenshot(filename, superSize);
+				Debug.Log("Took screenshot to: " + filename);
+			}
+
 			//DebugText.text = DebugUtilities.GetArrayContents(shapes);
 		}
 
