@@ -133,16 +133,16 @@ public class ShapesArray
 		return matches;
 	}
 
-	private IEnumerable<GameObject> GetBombRadius(GameObject go)
+	private IEnumerable<GameObject> GetBombRadius(GameObject go, int radius)
 	{
 		int goRow = go.GetComponent<Shape>().Row;
 		int goColumn = go.GetComponent<Shape>().Column;
 
 		List<GameObject> matches = new List<GameObject>();
 
-		for (int rowIndex = -1; rowIndex <= 1; rowIndex++)
+		for (int rowIndex = -1 * radius; rowIndex <= 1 * radius; rowIndex++)
 		{
-			for (int columnIndex = -1; columnIndex <= 1; columnIndex++)
+			for (int columnIndex = -1 * radius; columnIndex <= 1 * radius; columnIndex++)
 			{
 				if (!((rowIndex == 0) && (columnIndex == 0)))
 				{
@@ -211,6 +211,13 @@ public class ShapesArray
 					}
 				}
 			}
+			else if ((goBonus == BonusType.Bomb) && (go2Bonus == BonusType.Bomb))
+			{
+				go.GetComponent<Shape>().Bonus = BonusType.None;
+				go2.GetComponent<Shape>().Bonus = BonusType.None;
+				matchesInfo.AddObjectRange(GetBombRadius(go, 2));
+				matchesInfo.AddObjectRange(GetBombRadius(go2, 2));
+			}
 			else if (((goBonus == BonusType.Vertical) || (goBonus == BonusType.Horizontal)) &&
 					 ((go2Bonus == BonusType.Vertical) || (go2Bonus == BonusType.Horizontal)))
 			{
@@ -267,7 +274,7 @@ public class ShapesArray
 						case BonusType.Bomb:
 							bonusUsed[shape.Row, shape.Column] = true;
 							shape.Bonus = BonusType.None;
-							matchesInfo.AddObjectRange(GetBombRadius(item));
+							matchesInfo.AddObjectRange(GetBombRadius(item, 1));
 							break;
 
 						case BonusType.Ultimate:
