@@ -1,4 +1,7 @@
-﻿public static class Constants
+﻿/// <summary>
+/// Class for all constants in the game
+/// </summary>
+public static class Constants
 {
 	public static readonly int Rows = 8;
 	public static readonly int Columns = 8;

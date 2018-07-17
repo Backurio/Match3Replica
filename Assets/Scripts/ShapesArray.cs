@@ -180,8 +180,10 @@ public class ShapesArray
 			go2Bonus = go2.GetComponent<Shape>().Bonus;
 		}
 
-		MatchesInfo matchesInfo = new MatchesInfo();
-		matchesInfo.OriginGameObject = go;
+		MatchesInfo matchesInfo = new MatchesInfo
+		{
+			OriginGameObject = go
+		};
 
 		bool[,] bonusUsed = new bool[Constants.Rows, Constants.Columns];
 		for (int i = 0; i < Constants.Rows; i++)
@@ -350,8 +352,10 @@ public class ShapesArray
 
 	private IEnumerable<GameObject> GetMatchesHorizontally(GameObject go)
 	{
-		List<GameObject> matches = new List<GameObject>();
-		matches.Add(go);
+		List<GameObject> matches = new List<GameObject>
+		{
+			go
+		};
 		var shape = go.GetComponent<Shape>();
 		// check left
 		if (shape.Column != 0)
@@ -397,8 +401,10 @@ public class ShapesArray
 	private IEnumerable<GameObject> GetMatchesVertically(GameObject go)
 
 	{
-		List<GameObject> matches = new List<GameObject>();
-		matches.Add(go);
+		List<GameObject> matches = new List<GameObject>
+		{
+			go
+		};
 		var shape = go.GetComponent<Shape>();
 		// check bottom
 		if (shape.Row != 0)

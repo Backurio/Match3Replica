@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CanvasManager : MonoBehaviour {
-
+/// <summary>
+/// Class to handle the scaling of the canvas based on the screen resolution
+/// - for screens with a bigger width than the normal 16:9 the scaling is done for height
+/// - for screens with a bigger height than the normal 16:9 the scaling is done for the width
+/// </summary>
+public class CanvasManager : MonoBehaviour
+{
 	// Use this for initialization
 	void Start ()
 	{
@@ -22,10 +27,5 @@ public class CanvasManager : MonoBehaviour {
 
 		// set canvas scale type according to settings (depends on screen ratio - smartphone vs tablet)
 		gameObject.GetComponent<CanvasScaler>().matchWidthOrHeight = matchWidthOrHeight;
-	}
-
-	// Update is called once per frame
-	void Update () {
-
 	}
 }

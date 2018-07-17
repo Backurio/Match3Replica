@@ -4,8 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+/// <summary>
+/// Class which handles the finding and animation of potential matches
+/// </summary>
 public static class Utilities
 {
+	/// <summary>
+	/// Coroutine to animate potential matches
+	/// </summary>
+	/// <param name="potentialMatches">List of potential matches</param>
+	/// <returns></returns>
 	public static IEnumerator AnimatePotentialMatches(IEnumerable<GameObject> potentialMatches)
 	{
 		Vector3 candySize = Vector3.one * Constants.CandySize / 0.7f;
@@ -23,12 +31,22 @@ public static class Utilities
 		yield return new WaitForSeconds(Constants.ScaleAnimationDuration);
 	}
 
-
+	/// <summary>
+	/// Checks if two objects are next to each other
+	/// </summary>
+	/// <param name="s1">First object to be checked</param>
+	/// <param name="s2">Second object to be checked</param>
+	/// <returns>True if both objects are next to each other. Else, false.</returns>
 	public static bool AreVerticalOrHorizontalNeighbors(Shape s1, Shape s2)
 	{
 		return (((s1.Column == s2.Column) || (s1.Row == s2.Row)) && (Mathf.Abs(s1.Column - s2.Column) <= 1) && (Mathf.Abs(s1.Row - s2.Row) <= 1));
 	}
 
+	/// <summary>
+	/// Checks entire play area for potential matches and picks the best one (most matched objects)
+	/// </summary>
+	/// <param name="shapes">shapes array</param>
+	/// <returns>List of best objects in the best potential match</returns>
 	public static IEnumerable<GameObject> GetPotentialMatches(ShapesArray shapes)
 	{
 		// array of list that will contain all matches we find, sorted by amount of involved objects
@@ -82,6 +100,13 @@ public static class Utilities
 		return null;
 	}
 
+	/// <summary>
+	/// Check #1 for horizontal potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckHorizontal1(int row, int column, ShapesArray shapes)
 	{
 		List<GameObject> match = new List<GameObject>();
@@ -214,6 +239,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #2 for horizontal potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckHorizontal2(int row, int column, ShapesArray shapes)
 	{
 		List<GameObject> match = new List<GameObject>();
@@ -244,6 +276,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #3 for horizontal potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckHorizontal3(int row, int column, ShapesArray shapes)
 	{
 		List<GameObject> match = new List<GameObject>();
@@ -274,6 +313,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #4 for horizontal potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckHorizontal4(int row, int column, ShapesArray shapes)
 	{
 		List<GameObject> match = new List<GameObject>();
@@ -304,6 +350,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #1 for vertical potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckVertical1(int row, int column, ShapesArray shapes)
 	{
 		List<GameObject> match = new List<GameObject>();
@@ -452,6 +505,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #2 for vertical potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckVertical2(int row, int column, ShapesArray shapes)
 	{
 		/* examples
@@ -481,6 +541,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #3 for vertical potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckVertical3(int row, int column, ShapesArray shapes)
 	{
 		/* example
@@ -510,6 +577,13 @@ public static class Utilities
 		return match;
 	}
 
+	/// <summary>
+	/// Check #4 for vertical potential matches
+	/// </summary>
+	/// <param name="row">Row of the object from which the check will be performed</param>
+	/// <param name="column">Column of the object from which the check will be performed</param>
+	/// <param name="shapes">Shapes array</param>
+	/// <returns>List of objects for a potential match</returns>
 	public static List<GameObject> CheckVertical4(int row, int column, ShapesArray shapes)
 	{
 		/* example

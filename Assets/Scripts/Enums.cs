@@ -1,10 +1,16 @@
-﻿public enum GameState
+﻿/// <summary>
+/// Enum for the game state machine
+/// </summary>
+public enum GameState
 {
 	None,
 	SelectionStarted,
 	Animating
 }
 
+/// <summary>
+/// Enum for the bonus types
+/// </summary>
 public enum BonusType
 {
 	None,
@@ -14,6 +20,9 @@ public enum BonusType
 	Ultimate
 }
 
+/// <summary>
+/// Enum for the object types
+/// </summary>
 public enum ObjectType
 {
 	None,
@@ -25,6 +34,9 @@ public enum ObjectType
 	Ultimate
 }
 
+/// <summary>
+/// Enum for the explosion types
+/// </summary>
 public enum ExplosionType
 {
 	Object,

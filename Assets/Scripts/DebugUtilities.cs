@@ -1,8 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
+/// <summary>
+/// Class which helps with debugging the code
+/// </summary>
 public class DebugUtilities : MonoBehaviour
 {
+	/// <summary>
+	/// Reads the premade level information from /Resources/level.txt and saves it in a string array
+	/// </summary>
+	/// <returns>string array with premade level information</returns>
 	public static string[,] FillShapesArrayFromResourceData()
 	{
 		string[,] shapes = new string[Constants.Rows, Constants.Columns];
@@ -23,27 +30,11 @@ public class DebugUtilities : MonoBehaviour
 		return shapes;
 	}
 
-	public static void DebugRotate(GameObject go)
-	{
-		go.transform.Rotate(0.0f, 0.0f, 80.0f);
-	}
-
-	public static void DebugAlpha(GameObject go)
-	{
-		Color c = go.GetComponent<SpriteRenderer>().color;
-		c.a = 0.6f;
-		go.GetComponent<SpriteRenderer>().color = c;
-	}
-
-	public static void DebugPositions(GameObject hitGo, GameObject hitGo2)
-	{
-		string lala = hitGo.GetComponent<Shape>().Row + "-" +
-					  hitGo.GetComponent<Shape>().Column + "-" +
-					  hitGo2.GetComponent<Shape>().Row + "-" +
-					  hitGo2.GetComponent<Shape>().Column;
-		print(lala);
-	}
-
+	/// <summary>
+	/// Create a string with the content of the shapes array
+	/// </summary>
+	/// <param name="shapes">shapes array</param>
+	/// <returns>returns the string with the shapes array content</returns>
 	public static string GetArrayContents(ShapesArray shapes)
 	{
 		string x = string.Empty;
@@ -71,6 +62,10 @@ public class DebugUtilities : MonoBehaviour
 		return x;
 	}
 
+	/// <summary>
+	/// Writes the result of GetArrayContents function to the Debug Console
+	/// </summary>
+	/// <param name="shapes">shapes array</param>
 	public static void ShowArray(ShapesArray shapes)
 	{
 		Debug.Log(GetArrayContents(shapes));
