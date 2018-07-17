@@ -10,6 +10,7 @@ public class MatchesInfo
 
 	public GameObject OriginGameObject { get; set; }
 	public bool CreateBonus { get; set; }
+	public bool DestroyedByBonus { get; set; }
 	public BonusType BonusesContained { get; set; }
 	public int HorizontalMatches { get; set; }
 	public int VerticalMatches { get; set; }
@@ -37,6 +38,7 @@ public class MatchesInfo
 		matchedCandies = new List<GameObject>();
 		BonusesContained = BonusType.None;
 		CreateBonus = false;
+		DestroyedByBonus = false;
 		OriginGameObject = null;
 	}
 

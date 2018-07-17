@@ -18,6 +18,9 @@ public class ShapesManager : MonoBehaviour
 	public Button PremadeLevelButton;
 	public Transform PlayArea;
 
+	public GameObject scorePopUpPrefab;
+	public Transform popUpCanvas;
+
 	public Button ToggleGraphyButton;
 	public GameObject Graphy;
 
@@ -295,6 +298,10 @@ public class ShapesManager : MonoBehaviour
 
 	private void Update()
 	{
+		DebugText.enabled = DebuggingMode;
+		ToggleGraphyButton.gameObject.SetActive(DebuggingMode);
+		PremadeLevelButton.gameObject.SetActive(DebuggingMode);
+
 		if (DebuggingMode)
 		{
 			// take screenshot when the key "K" is pressed
@@ -462,15 +469,54 @@ public class ShapesManager : MonoBehaviour
 			}
 		}
 
-		int timesRun = 1;
+		int timesRun = 0;
 		while (totalMatches.Count() >= Constants.MinimumMatches)
 		{
-			// increase score
-			IncreaseScore((totalMatches.Count() - 2) * Constants.Match3Score);
-
-			if (timesRun >= 2)
+			// boolean array to not create score for the same match more than onces
+			bool[,] matchScoreCounted = new bool[Constants.Rows, Constants.Columns];
+			for (int i = 0; i < Constants.Rows; i++)
 			{
-				IncreaseScore(Constants.SubsequentMatchScore);
+				for (int j = 0; j < Constants.Columns; j++)
+				{
+					matchScoreCounted[i, j] = false;
+				}
+			}
+
+			// increase score
+			foreach (var item in matchesInfos)
+			{
+				if (item.DestroyedByBonus == true)
+				{
+					bool countScore = true;
+					foreach (var go in item.MatchedCandy)
+					{
+						if (matchScoreCounted[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] == true)
+						{
+							countScore = false;
+						}
+					}
+					if (countScore == true)
+					{
+						foreach (var go in item.MatchedCandy)
+						{
+							matchScoreCounted[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] = true;
+							Vector3 position = Camera.main.WorldToScreenPoint(go.transform.position);
+							IncreaseScoreAndCreatePopUp(Constants.BonusMatchScore, position);
+						}
+					}
+				}
+				else if (item.Matches == 3)
+				{
+					CheckForScoreAndIncrease(item, ref matchScoreCounted, Constants.Match3Score, timesRun);
+				}
+				else if (item.Matches == 4)
+				{
+					CheckForScoreAndIncrease(item, ref matchScoreCounted, Constants.Match4Score, timesRun);
+				}
+				else if (item.Matches >= 5)
+				{
+					CheckForScoreAndIncrease(item, ref matchScoreCounted, Constants.Match5Score, timesRun);
+				}
 			}
 
 			soundManager.PlayCrinkle();
@@ -565,6 +611,37 @@ public class ShapesManager : MonoBehaviour
 		{
 			StartCheckForPotentialMatches();
 		}
+	}
+
+	private void CheckForScoreAndIncrease(MatchesInfo item, ref bool[,] matchScoreCounted, int matchScore, int timesRun)
+	{
+		bool countScore = true;
+		foreach (var go in item.MatchedCandy)
+		{
+			if (matchScoreCounted[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] == true)
+			{
+				countScore = false;
+			}
+		}
+		if (countScore == true)
+		{
+			foreach (var go in item.MatchedCandy)
+			{
+				matchScoreCounted[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] = true;
+			}
+			int addedScore = matchScore + timesRun * Constants.ConsecutiveMatchScore;
+			Vector3 position = Camera.main.WorldToScreenPoint(item.OriginGameObject.transform.position);
+			IncreaseScoreAndCreatePopUp(addedScore, position);
+		}
+	}
+
+	private void IncreaseScoreAndCreatePopUp(int score, Vector3 position)
+	{
+		IncreaseScore(score);
+		GameObject scorePopUp = Instantiate(scorePopUpPrefab, position, Quaternion.identity, popUpCanvas);
+		scorePopUp.GetComponentInChildren<Text>().text = score.ToString();
+		scorePopUp.transform.DOScale(2.0f, 0.3f);
+		Destroy(scorePopUp, 0.3f);
 	}
 
 	private void DuplicateCandy(GameObject go)
@@ -712,6 +789,7 @@ public class ShapesManager : MonoBehaviour
 		ShowScore();
 		state = GameState.None;
 		Graphy.SetActive(false);
+		ShuffleText.SetActive(false);
 
 		if (shapes != null)
 		{

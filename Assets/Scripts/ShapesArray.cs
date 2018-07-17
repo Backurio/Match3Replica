@@ -196,6 +196,7 @@ public class ShapesArray
 			if (go2Bonus == BonusType.Ultimate)
 			{
 				matchesInfo = GetAllShapes();
+				matchesInfo.DestroyedByBonus = true;
 			}
 		}
 		else
@@ -210,6 +211,7 @@ public class ShapesArray
 						matchesInfo.AddObject(item);
 					}
 				}
+				matchesInfo.DestroyedByBonus = true;
 			}
 			else if ((goBonus == BonusType.Bomb) && (go2Bonus == BonusType.Bomb))
 			{
@@ -217,6 +219,7 @@ public class ShapesArray
 				go2.GetComponent<Shape>().Bonus = BonusType.None;
 				matchesInfo.AddObjectRange(GetBombRadius(go, 2));
 				matchesInfo.AddObjectRange(GetBombRadius(go2, 2));
+				matchesInfo.DestroyedByBonus = true;
 			}
 			else if (((goBonus == BonusType.Vertical) || (goBonus == BonusType.Horizontal)) &&
 					 ((go2Bonus == BonusType.Vertical) || (go2Bonus == BonusType.Horizontal)))
@@ -225,16 +228,19 @@ public class ShapesArray
 				go2.GetComponent<Shape>().Bonus = BonusType.None;
 				matchesInfo.AddObjectRange(GetEntireColumn(go));
 				matchesInfo.AddObjectRange(GetEntireRow(go));
+				matchesInfo.DestroyedByBonus = true;
 			}
 			else if (((goBonus == BonusType.Vertical) || (goBonus == BonusType.Horizontal)) &&
 					 (go2Bonus == BonusType.Bomb))
 			{
 				matchesInfo.AddObjectRange(GetBombAndVerticalOrHorizontal(go, go2));
+				matchesInfo.DestroyedByBonus = true;
 			}
 			else if ((goBonus == BonusType.Bomb) &&
 					 ((go2Bonus == BonusType.Vertical) || (go2Bonus == BonusType.Horizontal)))
 			{
 				matchesInfo.AddObjectRange(GetBombAndVerticalOrHorizontal(go, go2));
+				matchesInfo.DestroyedByBonus = true;
 			}
 			else
 			{
@@ -263,23 +269,25 @@ public class ShapesArray
 							bonusUsed[shape.Row, shape.Column] = true;
 							shape.Bonus = BonusType.None;
 							matchesInfo.AddObjectRange(GetEntireRow(item));
+							matchesInfo.DestroyedByBonus = true;
 							break;
 
 						case BonusType.Vertical:
 							bonusUsed[shape.Row, shape.Column] = true;
 							shape.Bonus = BonusType.None;
 							matchesInfo.AddObjectRange(GetEntireColumn(item));
+							matchesInfo.DestroyedByBonus = true;
 							break;
 
 						case BonusType.Bomb:
 							bonusUsed[shape.Row, shape.Column] = true;
 							shape.Bonus = BonusType.None;
 							matchesInfo.AddObjectRange(GetBombRadius(item, 1));
+							matchesInfo.DestroyedByBonus = true;
 							break;
 
 						case BonusType.Ultimate:
 							bonusUsed[shape.Row, shape.Column] = true;
-
 							break;
 
 						default:
