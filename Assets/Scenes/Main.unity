@@ -614,11 +614,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e877cdb442cc6b4b89b06fc24913c22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shapesContainer: {fileID: 1130954533}
+  DebuggingMode: 0
   DebugText: {fileID: 970071620}
   ScoreText: {fileID: 1805211829}
   ShuffleText: {fileID: 728209509}
-  DebuggingMode: 0
-  shapesContainer: {fileID: 1130954533}
   RestartButton: {fileID: 1038957704}
   PremadeLevelButton: {fileID: 271890243}
   PlayArea: {fileID: 2031311725}
@@ -633,8 +633,6 @@ MonoBehaviour:
   - {fileID: 1533693679546852, guid: 0dc5268515d183944ad9f07e9298cde7, type: 2}
   - {fileID: 1817730760649408, guid: 69a7060288330ee4e90d6aa70d80b8ac, type: 2}
   - {fileID: 1922903201488580, guid: 20b1637dd52e95443988f6dec13d1609, type: 2}
-  ExplosionPrefabs:
-  - {fileID: 1943989212539218, guid: 6116eb0d4dbf36142911bc4deabb21d0, type: 2}
   HorizontalPrefabs:
   - {fileID: 1656131690740054, guid: a3e85242571c82f41865c87016f53b42, type: 2}
   - {fileID: 1061274053689338, guid: 3a1478f7e9c06434a8d004cfa0a3762f, type: 2}
@@ -654,6 +652,14 @@ MonoBehaviour:
   - {fileID: 1361606156638268, guid: 17bb959d1f6b1ab4ab28d86277d0019e, type: 2}
   - {fileID: 1539031656534722, guid: 4e93e6d89fd594f43a4a05ed5f6c44c4, type: 2}
   Ultimate: {fileID: 1656131690740054, guid: e2db6b3f8f14ad544a4e6312cb090e24, type: 2}
+  ExplosionObjectPrefab: {fileID: 1943989212539218, guid: 6116eb0d4dbf36142911bc4deabb21d0,
+    type: 2}
+  ExplosionHorizontalPrefab: {fileID: 1330340370010640, guid: 1f9ebc8cbb8370442bf32c691d6e7f4d,
+    type: 2}
+  ExplosionVerticalPrefab: {fileID: 1168579569208406, guid: 6d5688db8f217aa448c106bae6d613d8,
+    type: 2}
+  ExplosionBombPrefab: {fileID: 1145574733422960, guid: 978a50d571634004fb13a35040fa266e,
+    type: 2}
   soundManager: {fileID: 799029699}
 --- !u!4 &436257501
 Transform:

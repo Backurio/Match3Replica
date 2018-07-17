@@ -7,12 +7,15 @@ using DG.Tweening;
 
 public class ShapesManager : MonoBehaviour
 {
-	public Text DebugText, ScoreText;
-	public GameObject ShuffleText;
-	public bool DebuggingMode = false;
-
 	public ShapesArray shapes;
 	public Transform shapesContainer;
+
+	public bool DebuggingMode = false;
+
+	[Header("UI Elements")]
+	public Text DebugText;
+	public Text ScoreText;
+	public GameObject ShuffleText;
 
 	public Button RestartButton;
 	public Button PremadeLevelButton;
@@ -35,12 +38,19 @@ public class ShapesManager : MonoBehaviour
 	private GameObject hitGo = null;
 
 	private Vector2[] spawnPositions;
+
+	[Header("Object Prefabs")]
 	public GameObject[] CandyPrefabs;
-	public GameObject[] ExplosionPrefabs;
 	public GameObject[] HorizontalPrefabs;
 	public GameObject[] VerticalPrefabs;
 	public GameObject[] BombPrefabs;
 	public GameObject Ultimate;
+
+	[Header("Explosion Prefabs")]
+	public GameObject ExplosionObjectPrefab;
+	public GameObject ExplosionHorizontalPrefab;
+	public GameObject ExplosionVerticalPrefab;
+	public GameObject ExplosionBombPrefab;
 
 	private IEnumerator CheckPotentialMatchesCoroutine;
 	private IEnumerator AnimatePotentialMatchesCoroutine;
@@ -548,6 +558,7 @@ public class ShapesManager : MonoBehaviour
 
 			// wait until explosion animation has finished
 			yield return new WaitForSeconds(Constants.ExplosionDuration);
+			yield return new WaitForSeconds(Constants.DelayAfterExplosion);
 
 			MoveAndAnimate(newCandyInfo.AlteredCandy);
 			MoveAndAnimate(collapsedCandyInfo.AlteredCandy);
@@ -625,12 +636,30 @@ public class ShapesManager : MonoBehaviour
 		}
 		if (countScore == true)
 		{
+			List<float> xPositions = new List<float>();
+			List<float> yPositions = new List<float>();
 			foreach (var go in item.MatchedCandy)
 			{
 				matchScoreCounted[go.GetComponent<Shape>().Row, go.GetComponent<Shape>().Column] = true;
+				xPositions.Add(Camera.main.WorldToScreenPoint(go.transform.position).x);
+				yPositions.Add(Camera.main.WorldToScreenPoint(go.transform.position).y);
 			}
+			var xSorted = xPositions.OrderBy(n => n);
+			var ySorted = yPositions.OrderBy(n => n);
+			float xMedian = 0.0f;
+			float yMedian = 0.0f;
+			if ((item.Matches % 2) == 0)
+			{
+				xMedian = ((xSorted.ElementAt(item.Matches / 2) + xSorted.ElementAt(item.Matches / 2 - 1)) / 2);
+				yMedian = ((ySorted.ElementAt(item.Matches / 2) + ySorted.ElementAt(item.Matches / 2 - 1)) / 2);
+			}
+			else
+			{
+				xMedian = xSorted.ElementAt(item.Matches / 2);
+				yMedian = ySorted.ElementAt(item.Matches / 2);
+			}
+			Vector3 position = new Vector3(xMedian, yMedian, 0.0f);
 			int addedScore = matchScore + timesRun * Constants.ConsecutiveMatchScore;
-			Vector3 position = Camera.main.WorldToScreenPoint(item.OriginGameObject.transform.position);
 			IncreaseScoreAndCreatePopUp(addedScore, position);
 		}
 	}
@@ -640,8 +669,8 @@ public class ShapesManager : MonoBehaviour
 		IncreaseScore(score);
 		GameObject scorePopUp = Instantiate(scorePopUpPrefab, position, Quaternion.identity, popUpCanvas);
 		scorePopUp.GetComponentInChildren<Text>().text = score.ToString();
-		scorePopUp.transform.DOScale(2.0f, 0.3f);
-		Destroy(scorePopUp, 0.3f);
+		scorePopUp.transform.DOScale(2.0f, 0.5f);
+		Destroy(scorePopUp, 0.5f);
 	}
 
 	private void DuplicateCandy(GameObject go)
@@ -750,8 +779,7 @@ public class ShapesManager : MonoBehaviour
 
 	private void RemoveFromScene(GameObject item)
 	{
-		GameObject explosion = GetRandomExplosion();
-		var newExplosion = Instantiate(explosion, item.transform.position, Quaternion.identity) as GameObject;
+		var newExplosion = Instantiate(ExplosionObjectPrefab, item.transform.position, Quaternion.identity) as GameObject;
 		Destroy(newExplosion, Constants.ExplosionDuration);
 		Destroy(item);
 	}
@@ -811,6 +839,9 @@ public class ShapesManager : MonoBehaviour
 		ScoreText.text = score.ToString();
 	}
 
+	/// <summary>
+	/// Destroys all objects in the play area
+	/// </summary>
 	private void DestroyAllCandy()
 	{
 		for (int row = 0; row < Constants.Rows; row++)
@@ -820,11 +851,6 @@ public class ShapesManager : MonoBehaviour
 				Destroy(shapes[row, column]);
 			}
 		}
-	}
-
-	private GameObject GetRandomExplosion()
-	{
-		return ExplosionPrefabs[Random.Range(0, ExplosionPrefabs.Length)];
 	}
 
 	private GameObject GetPrefabFromTypeAndBonus(string type, BonusType bonusType)

@@ -11,6 +11,7 @@
 	public static readonly float MoveAnimationMinDuration = 0.5f;
 
 	public static readonly float ExplosionDuration = 0.35f;
+	public static readonly float DelayAfterExplosion = 0.25f;
 
 	public static readonly float WaitBeforePotentialMatchesCheck = 2.0f;
 	public static readonly float WaitBetweenPotentialMatchesAnimation = 1.0f;

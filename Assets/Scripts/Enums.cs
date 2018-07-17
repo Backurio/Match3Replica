@@ -14,3 +14,21 @@ public enum BonusType
 	Ultimate
 }
 
+public enum ObjectType
+{
+	None,
+	Coin,
+	Gold,
+	Iron,
+	Stone,
+	Wood,
+	Ultimate
+}
+
+public enum ExplosionType
+{
+	Object,
+	Vertical,
+	Horizontal,
+	Bomb
+}
